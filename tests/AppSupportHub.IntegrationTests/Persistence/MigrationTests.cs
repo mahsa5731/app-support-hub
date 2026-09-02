@@ -9,7 +9,7 @@ namespace AppSupportHub.IntegrationTests.Persistence;
 public sealed class MigrationTests(PostgreSqlContainerFixture fixture)
 {
     [Fact]
-    public async Task FreshDatabaseIsMigratedToTheSingleLatestMigrationAsync()
+    public async Task FreshDatabaseIsMigratedToTheLatestMigrationAsync()
     {
         await fixture.ResetDatabaseAsync();
         await using AppSupportHubDbContext dbContext = fixture.CreateDbContext();
@@ -19,8 +19,16 @@ public sealed class MigrationTests(PostgreSqlContainerFixture fixture)
         string[] pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync())
             .ToArray();
 
-        string migration = Assert.Single(appliedMigrations);
-        Assert.EndsWith("_InitialPostgreSqlPersistence", migration, StringComparison.Ordinal);
+        Assert.Collection(
+            appliedMigrations,
+            migration => Assert.EndsWith(
+                "_InitialPostgreSqlPersistence",
+                migration,
+                StringComparison.Ordinal),
+            migration => Assert.EndsWith(
+                "_AddChangeAssessments",
+                migration,
+                StringComparison.Ordinal));
         Assert.Empty(pendingMigrations);
     }
 
@@ -35,7 +43,8 @@ public sealed class MigrationTests(PostgreSqlContainerFixture fixture)
         Assert.Empty(await dbContext.Database.GetAppliedMigrationsAsync());
 
         await migrator.MigrateAsync();
-        string migration = Assert.Single(await dbContext.Database.GetAppliedMigrationsAsync());
-        Assert.EndsWith("_InitialPostgreSqlPersistence", migration, StringComparison.Ordinal);
+        string[] migrations = (await dbContext.Database.GetAppliedMigrationsAsync()).ToArray();
+        Assert.Equal(2, migrations.Length);
+        Assert.EndsWith("_AddChangeAssessments", migrations[1], StringComparison.Ordinal);
     }
 }

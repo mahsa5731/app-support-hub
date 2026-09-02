@@ -32,7 +32,8 @@ public sealed class PostgreSqlContainerFixture : IAsyncLifetime
     {
         await using AppSupportHubDbContext dbContext = CreateDbContext();
         await dbContext.Database.ExecuteSqlRawAsync(
-            "TRUNCATE TABLE work_item_history_entries, work_items, application_systems CASCADE");
+            "TRUNCATE TABLE change_assessments, work_item_history_entries, "
+            + "work_items, application_systems CASCADE");
     }
 
     public async Task DisposeAsync()
