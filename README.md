@@ -6,13 +6,13 @@ technology team. The eventual product will bring application cataloguing,
 support work, change assessment, legacy import boundaries, and operational
 reporting into one maintainable system.
 
-## Status: Phase 03 — PostgreSQL and Infrastructure
+## Status: Phase 04 — Core Web and API workflow
 
-PostgreSQL persistence now implements the Phase 02 repository contracts through
-EF Core and Npgsql. Explicit schema constraints, stable append-only WorkItem
-history, `citext` names, transactions, migrations, and `xmin` optimistic
-concurrency are verified against throwaway PostgreSQL 17 Testcontainers. No
-business UI or API exists yet.
+Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
+Application workflows over PostgreSQL. The UI includes bounded filters,
+validated forms, lifecycle and work-item actions, UTC dates, and immutable
+history. The API publishes built-in OpenAPI JSON and consistent RFC 7807
+errors. Focused HTTP integration tests use real PostgreSQL 17 Testcontainers.
 
 AppSupportHub is an independent portfolio project. It is **not affiliated with,
 endorsed by, or built for the City of Winnipeg**. It does not use City data or
@@ -25,22 +25,23 @@ connect to City systems.
 - PostgreSQL 17, EF Core 10, and Npgsql
 - Testcontainers for isolated PostgreSQL integration tests
 - xUnit
-- Built-in .NET analyzers and health checks
+- Built-in .NET analyzers, OpenAPI generation, and health checks
 
-Authentication, external integrations, reporting, and a frontend build pipeline
-are not included in Phase 03.
+Authentication, authorization, external integrations, reporting, operational
+readiness, deployment automation, and a frontend build pipeline are not
+included in Phase 04.
 
 ## Solution structure
 
 ```text
 src/
   AppSupportHub.Domain/          Systems and WorkItems business rules
-  AppSupportHub.Application/     Five use cases and persistence ports
+  AppSupportHub.Application/     Explicit workflows, input parsing, and ports
   AppSupportHub.Infrastructure/  EF Core PostgreSQL mappings and repositories
-  AppSupportHub.Web/             Razor Pages host
+  AppSupportHub.Web/             Razor Pages, Minimal API v1, and composition
 tests/
   AppSupportHub.UnitTests/        Domain and Application tests and doubles
-  AppSupportHub.IntegrationTests/ Real PostgreSQL persistence tests
+  AppSupportHub.IntegrationTests/ Real PostgreSQL persistence and HTTP tests
   AppSupportHub.ArchitectureTests/ Enforced dependency boundaries
 ```
 
@@ -56,11 +57,14 @@ Prerequisites:
 - Git
 - Docker with a reachable Linux engine for PostgreSQL integration tests
 
-Run these commands from the repository root:
+Set the required connection string without storing a password in the repository,
+apply the existing migration explicitly, and run from the repository root:
 
 ```bash
 dotnet tool restore
 dotnet restore AppSupportHub.sln
+export ConnectionStrings__AppSupportHub='Host=localhost;Port=5432;Database=app_support_hub;Username=app_support_hub;Password=replace-locally'
+dotnet ef database update --project src/AppSupportHub.Infrastructure --startup-project src/AppSupportHub.Infrastructure
 dotnet build AppSupportHub.sln --no-restore
 dotnet test AppSupportHub.sln --no-build
 dotnet format AppSupportHub.sln --verify-no-changes --no-restore
@@ -68,15 +72,30 @@ dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj
 ```
 
 Integration tests start one isolated `postgres:17-alpine` container and apply
-the repository migration. Production data is never seeded. The standard future
-runtime configuration key is `ConnectionStrings:AppSupportHub`, with
-`ConnectionStrings__AppSupportHub` as its environment override; no real
-connection string or password belongs in source control. The current minimal
-Web host does not connect to PostgreSQL at startup.
+the repository migration. The runtime key is
+`ConnectionStrings:AppSupportHub`, with `ConnectionStrings__AppSupportHub` as
+its environment override. It is required for the business host; startup never
+applies migrations or creates a database. No real connection string or password
+belongs in source control.
+
+Optional fictional demo records require both Development and an explicit gate:
+
+```bash
+export ASPNETCORE_ENVIRONMENT=Development
+export AppSupportHub__SeedDemoData=true
+dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj
+```
+
+The gate defaults to false, never runs outside Development, and never migrates
+or clears data. See [local development](docs/local-development.md) for complete
+macOS/Linux setup and shutdown guidance.
 
 The local host exposes:
 
-- `/` — the Phase 03 project-status page
+- `/` — the Phase 04 project-status page
+- `/Systems` and `/WorkItems` — server-rendered workflows
+- `/api/v1/systems` and `/api/v1/work-items` — REST API v1
+- `/openapi/v1.json` — OpenAPI document
 - `/health` — the built-in liveness health response
 
 The HTTPS launch profile listens on `https://localhost:7130` and redirects the
@@ -93,15 +112,22 @@ through standard ASP.NET Core launch configuration.
 - [ADR 0002: Server-rendered Razor Pages UI](docs/adr/0002-server-rendered-razor-pages-ui.md)
 - [ADR 0003: Rich domain model and explicit use cases](docs/adr/0003-rich-domain-model-and-explicit-use-cases.md)
 - [ADR 0004: PostgreSQL and EF Core persistence](docs/adr/0004-postgresql-ef-core-persistence.md)
+- [ADR 0005: Explicit read models and query ports](docs/adr/0005-explicit-read-models-and-query-ports.md)
+- [ADR 0006: Thin Razor Pages and versioned Minimal API](docs/adr/0006-thin-razor-pages-and-versioned-minimal-api.md)
+- [REST API v1](docs/api-v1.md)
+- [Local development](docs/local-development.md)
+- [Manual test script](docs/manual-test-script.md)
 - [AI-assisted development](docs/ai-assisted-development.md)
 
 ## Current limitations
 
-Phase 03 contains no business Web UI or REST API, authentication or
-authorization, change assessment, legacy import, reporting, database readiness
-check, Dockerfile or Compose configuration, CI/CD, deployment automation, or
-production operations configuration. Persistence exists but is not yet exposed
-to users. The application is not a production-ready service.
+Phase 04 is an unauthenticated demonstration. All mutations use the disclosed
+server-owned demo actor; it is not an authenticated identity. The project has
+no authorization, change assessment, legacy import, reporting, readiness check,
+rate limiting, security hardening, Dockerfile or Compose configuration, CI/CD,
+deployment automation, or production operations configuration. The basic
+accessibility checks are not a WCAG certification. This is not a
+production-ready service.
 
 ## License
 

@@ -2,10 +2,10 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 04A adds tested
-Systems and WorkItems Application read and mutation workflows over the Phase 03
-PostgreSQL foundation. User-facing workflows, security, integrations, and
-operations remain later-phase work.
+These requirements define the intended portfolio product. Phase 04 exposes the
+tested Systems and WorkItems Application workflows through Razor Pages and a
+versioned REST API over PostgreSQL. Authentication, authorization, later
+features, and operations remain planned.
 
 ## Functional requirements
 
@@ -63,22 +63,23 @@ operations remain later-phase work.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Phase 04A implementation traceability
+## Phase 04 implementation traceability
 
-| Requirement | Implemented evidence through Phase 04A | Remaining delivery |
+| Requirement | Implemented evidence through Phase 04 | Remaining delivery |
 | --- | --- | --- |
-| FR-SYS-001 | Create, get, bounded search/filter, update, lifecycle change, and retirement Application workflows; PostgreSQL projections and case-insensitive name uniqueness exclude the current record during update | Authorization and Razor Pages/API workflows |
-| FR-SYS-002 | Commercial/custom detail and summary read models retain ownership, support, vendor, criticality, lifecycle, retirement, and UTC metadata | User-facing maintenance |
-| FR-WRK-001 | Explicit work-item types, creation use case, relational storage, and required system foreign key | User/API creation workflow |
-| FR-WRK-002 | Assignment, unassignment, priority-change, and due-date Application handlers plus bounded filtered read projections | Authorization and UI/API workflows |
-| FR-WRK-003 | Exact type-aware status matrix, transition use case, string storage, constraints, and indexed status | Authorization and user/API workflow |
-| FR-WRK-004 | Due-date and detail-update handlers plus list/detail projections compute overdue state from handler-supplied UTC time and expose resolution state | User-facing scheduling/resolution workflow |
-| FR-WRK-005 | Detail queries join system names and project immutable history in Infrastructure shadow-sequence order, including equal timestamps | Authenticated actor identity and history presentation |
+| FR-SYS-001 | Razor and API create, get, bounded search/filter, update, and confirmed lifecycle/retirement workflows persist through Application handlers | Authorization |
+| FR-SYS-002 | Commercial/custom pages and DTOs present ownership, support, vendor, criticality, lifecycle, retirement, and labelled UTC metadata | Authorization |
+| FR-WRK-001 | Razor and API creation represent incidents, enhancements, and change requests against a required non-retired system | Authorization |
+| FR-WRK-002 | Razor named actions and API endpoints provide assignment, unassignment, priority, and bounded filters | Authorization and authenticated identity |
+| FR-WRK-003 | Razor/API status actions delegate the exact type-aware transition matrix to Domain/Application | Authorization |
+| FR-WRK-004 | Razor/API due-date and detail workflows present overdue text and resolution data with explicit UTC handling | Authorization |
+| FR-WRK-005 | Detail pages/API project chronological immutable history, including stable equal-timestamp order; mutations use a disclosed synthetic server actor | Authenticated actor identity and security audit policy |
+| FR-API-001 | Fourteen path-versioned Minimal API routes, Web DTOs, RFC 7807 errors, and `/openapi/v1.json` are implemented and HTTP tested | Authentication, authorization, and later feature APIs |
 | FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
 
-No functional requirement is marked fully delivered because Phase 04A adds no
-user-accessible business workflow. Change assessment,
-legacy import, reporting, role-based access, REST API, and security audit
+Phase 04 provides user-accessible demo workflows but does not satisfy the
+requirements' “authorized users” condition. Change assessment, legacy import,
+reporting, role-based access, authenticated audit identity, and security audit
 requirements remain planned for their approved later phases.
 
 ## Non-functional requirements
@@ -127,6 +128,13 @@ Application-owned query ports and presentation-neutral read models, bounded
 server-side no-tracking projections, deterministic ordering, cancellation, and
 focused unit, PostgreSQL integration, and architecture coverage. A limit is not
 cursor or page-number pagination; full pagination remains later work.
+
+Phase 04B adds thin Web adapters, one case-insensitive Application parsing
+boundary, server validation, antiforgery and PRG, visible keyboard focus,
+semantic landmarks, non-color status text, RFC 7807 errors, HTTPS HTTP tests,
+and an opt-in fictional seed gate. These checks provide accessibility evidence,
+not WCAG certification; security and operational non-functional requirements
+remain incomplete.
 
 ## Out of scope
 

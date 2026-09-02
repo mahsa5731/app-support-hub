@@ -49,6 +49,12 @@ decisions. Infrastructure implements technical details selected by Application
 contracts; it must not become a second business layer. Keeping business logic
 in Domain and Application makes it testable without a web server or database.
 
+Phase 04B applies the same rule to Minimal API endpoints. Web request contracts
+contain primitives only. Feature-specific Application input factories validate
+case-insensitive string vocabulary and construct the existing typed commands
+and queries; Domain retains all lifecycle and status rules. Application read
+models expose computed string labels so Web never references Domain types.
+
 ## Systems and WorkItems core
 
 Phase 02 implements two feature-oriented Domain modules:
@@ -116,14 +122,16 @@ Domain append order, including when timestamps match or an aggregate is
 reloaded. The DbContext rejects tracked history modifications and deletions
 before SQL is issued.
 
-`InitialPostgreSqlPersistence` is the sole migration. Production startup does
-not call `EnsureCreated`, apply migrations, execute seeds, or require a database
-for `/` and `/health`. The standard future connection key is
+`InitialPostgreSqlPersistence` is the sole migration. Startup does not call
+`EnsureCreated` or apply migrations. The standard connection key is
 `ConnectionStrings:AppSupportHub`, overridden by
-`ConnectionStrings__AppSupportHub`. Integration tests use one isolated
+`ConnectionStrings__AppSupportHub`; business-host startup requires it, while
+the liveness endpoint itself performs no database query. Integration tests use one isolated
 `postgres:17-alpine` Testcontainer, apply migrations, arrange synthetic records,
-and truncate between tests. No production data is seeded; any later demo-data
-decision must remain explicit, idempotent, opt-in, and synthetic.
+and truncate between tests. An optional handler-driven synthetic seed runs only
+when the environment is Development and `AppSupportHub:SeedDemoData` is true.
+It defaults off, is idempotent, never migrates or clears data, and never runs in
+other environments.
 
 ## Read-query boundary
 
@@ -142,13 +150,37 @@ WorkItem detail loads only the selected row and its projected history, ordered
 by the existing shadow `Sequence` rather than timestamp. All database calls
 receive the caller's cancellation token. ADR 0005 records this choice.
 
+## Web composition and adapters
+
+`Program.cs` validates the required connection configuration and delegates
+cohesive registration to `AddWebApplication`. It registers every concrete
+Application handler and input factory as scoped, registers `TimeProvider.System`
+once, calls Infrastructure composition, and maps Razor Pages, `/health`, built-in
+OpenAPI, and versioned API groups. It never migrates or creates a database.
+
+Feature folders under `Pages/Systems` and `Pages/WorkItems` own server-rendered
+input and output. Forms use server validation, antiforgery, TempData, and
+Post/Redirect/Get; successful mutations redirect to canonical detail pages.
+UTC is explicit in rendered dates and `datetime-local` values are interpreted
+at the Web boundary as UTC. A server-owned synthetic actor is used until Phase
+06; no client contract accepts an actor value.
+
+Minimal API feature groups under `Api/V1` expose exactly the Systems and
+WorkItems workflows beneath `/api/v1`. Web-owned DTOs serialize string labels
+and offset-bearing dates, and cancellation flows to handlers. One Web mapper
+translates Application Validation to 400, NotFound to 404, and Conflict or
+BusinessRule to 409. API failures use RFC 7807 with the stable Application code
+in the `code` extension. Built-in OpenAPI JSON is available at
+`/openapi/v1.json`; no interactive documentation package is installed. ADR 0006
+records this shared-handler adapter decision.
+
 ## Feature organization
 
-Later phases organize work by plural feature or module name rather than by
-technical dumping grounds. Planned modules are Systems, WorkItems,
+Features are organized by plural feature or module name rather than by
+technical dumping grounds. Planned later modules are
 ChangeAssessments, LegacyImports, Reporting, Identity, and Operations.
 
-Representative future organization:
+Current and representative future organization:
 
 ```text
 Application/
@@ -188,13 +220,17 @@ simple. If measured scale or organizational ownership later justifies service
 extraction, explicit module contracts provide seams. Microservices are not a
 default destination and are unnecessary for the current portfolio scope.
 
-## Phase 04A boundary
+## Phase 04 boundary
 
 The implemented architecture now includes the Systems and WorkItems core,
 specific PostgreSQL repositories, explicit schema constraints, migrations,
 transactions, stable history, optimistic concurrency, bounded read ports, and
 the complete non-HTTP Application mutation surface for existing Domain
-behavior. Web still has no business pages or endpoints and does not compose a
-runtime database connection.
-Authentication, change assessment, legacy import, reporting, operational
-readiness, containerization, CI/CD, and deployment remain later-phase work.
+behavior. Thin Razor Pages and a versioned Minimal API now share those handlers,
+with explicit Web input/error/date boundaries and focused real-PostgreSQL HTTP
+tests. The host composes the required database connection and optional
+Development seed gate but never performs automatic migration.
+
+Authentication, authorization, change assessment, legacy import, reporting,
+operational readiness, security hardening, containerization, CI/CD, and
+deployment remain later-phase work.

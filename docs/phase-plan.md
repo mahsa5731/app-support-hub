@@ -34,13 +34,14 @@ and the AI-assistance record when its scope changes.
   and transaction tests against an isolated database.
 - **Dependency:** Phases 1–2.
 
-## 4. Core Web and API workflow — In progress — 04A complete, 04B pending
+## 4. Core Web and API workflow — Completed
 
 - **Objective:** Deliver the primary application-system and work-item journeys.
 - **Main deliverables:** Phase 04A provides bounded read-query ports, read
   models, PostgreSQL projections, and the remaining Systems and WorkItems
-  Application mutations. Phase 04B will add Razor Pages workflows, a versioned
-  REST API, and HTTP-facing validation and history views.
+  Application mutations. Phase 04B adds accessible Razor Pages workflows, a
+  versioned Minimal API and OpenAPI document, shared HTTP validation/error
+  mapping, and opt-in fictional Development data.
 - **Required tests:** Page, API, validation, workflow, accessibility, and
   persistence integration tests.
 - **Dependency:** Phases 1–3.

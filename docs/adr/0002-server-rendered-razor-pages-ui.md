@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted — implemented in Phase 04
 
 ## Context
 
@@ -35,3 +35,14 @@ need focused JavaScript later, but it will be added only for demonstrated needs.
   clear advantage for the current form-centric, server-rendered scope.
 - MVC was viable but Razor Pages maps more directly to the planned page-focused
   workflows with less ceremony.
+
+## Implementation evidence
+
+Phase 04 implements feature folders for Systems and WorkItems with semantic
+URLs, server validation, antiforgery, Post/Redirect/Get, restored form options,
+TempData success messages, and handler-delegated workflows. The shared layout
+adds landmarks, current navigation, a skip link, visible focus, responsive
+Bootstrap structure, demo-mode disclosure, and independent-project language.
+Focused HTTPS integration tests exercise real rendered forms and PostgreSQL.
+These checks are evidence of the decision, not WCAG certification or a claim of
+production security.

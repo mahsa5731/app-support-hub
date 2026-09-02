@@ -194,3 +194,59 @@ Phase 04B Razor Pages and REST API adapters, authentication, authorization,
 accessibility evidence, deployment, and all later-phase features remain absent.
 No commit, push, tag, secret, production data, or line-by-line human review is
 claimed.
+
+## Phase 04B
+
+Codex implemented thin Systems and WorkItems Razor Pages and a path-versioned
+Minimal API over the existing Phase 04A handlers. The work added an
+Application-owned case-insensitive string parsing/label boundary, cohesive Web
+composition, shared RFC 7807/page error mapping, UTC input handling, the
+server-owned demo actor, built-in OpenAPI `v1`, and an explicitly gated,
+idempotent fictional Development seeder. No Domain, schema, migration, project
+reference, or later-phase security feature was added.
+
+The only packages added were `Microsoft.AspNetCore.OpenApi` 10.0.11 in Web and
+`Microsoft.AspNetCore.Mvc.Testing` 10.0.11 in IntegrationTests. Codex selected
+feature-local PageModel/endpoint/DTO structure, compact HTTP test arrangements,
+Bootstrap-based presentation, and obviously fictional seed names within the
+supplied routes, policies, and boundary constraints.
+
+Focused HTTP evidence uses one `WebApplicationFactory<Program>` wired to the
+existing shared PostgreSQL 17 Testcontainer. It covers real antiforgery and
+Post/Redirect/Get, all API routes, persistence, validation/not-found/conflict/
+business errors, server actor ownership, bounded lists and cancellation,
+equal-timestamp history order, Development seed gates, rendered semantic and
+keyboard-focus evidence, and database-independent liveness. The accessibility
+assertions and manual script are basic evidence only, not a manual assistive-
+technology audit or WCAG certification.
+
+Final validation uses:
+
+```text
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.UnitTests/AppSupportHub.UnitTests.csproj --no-build
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build
+dotnet test tests/AppSupportHub.ArchitectureTests/AppSupportHub.ArchitectureTests.csproj --no-build
+dotnet test AppSupportHub.sln --no-build
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+git diff --check
+```
+
+The final build passed with zero warnings and zero errors. UnitTests passed 226
+cases, IntegrationTests passed 49 cases against the shared PostgreSQL 17
+container, and ArchitectureTests passed 16 cases, with no skips. The single
+full solution run passed all 291 tests. Formatter verification and
+`git diff --check` passed.
+
+The final smoke used a separate ephemeral `postgres:17-alpine` container,
+explicitly applied the unchanged migration through the Infrastructure
+design-time factory, and started the HTTPS host with the synthetic seed enabled.
+`/`, `/Systems`, `/WorkItems`, `/health`, both list APIs, and OpenAPI returned
+200; OpenAPI exposed 14 operations; three fictional systems, five fictional work
+items, and the Phase 04, demo-mode, and non-affiliation statements were visible.
+The in-app Browser runtime had no available browser instance, so direct local
+HTTPS requests supplied the no-screenshot smoke evidence. Host and container
+shut down cleanly. No authentication, authorization, readiness check, Swagger
+UI, automatic migration, production seed, CI/CD, deployment, commit, push, tag,
+or line-by-line human review is claimed.
