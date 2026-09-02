@@ -1,11 +1,14 @@
 using System.Reflection;
 using System.Xml.Linq;
+using AppSupportHub.Application.Operations;
 using AppSupportHub.Application.Systems.Inputs;
 using AppSupportHub.Application.Systems.ListApplicationSystems;
 using AppSupportHub.Application.Systems.Queries;
 using AppSupportHub.Application.Systems.ReadModels;
 using AppSupportHub.Application.WorkItems.Queries;
 using AppSupportHub.Application.WorkItems.ReadModels;
+using AppSupportHub.Infrastructure.Health;
+using AppSupportHub.Infrastructure.Persistence.Queries.Operations;
 using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
 using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
 using AppSupportHub.Web.Api.V1.Systems;
@@ -76,6 +79,8 @@ public sealed class LayerDependencyTests
             typeof(WorkItemSummary),
             typeof(WorkItemDetail),
             typeof(WorkItemHistoryItem),
+            typeof(IOperationsOverviewQueries),
+            typeof(OperationsOverview),
         ];
 
         Assert.All(
@@ -105,6 +110,12 @@ public sealed class LayerDependencyTests
         Assert.Equal(
             [typeof(IWorkItemQueries)],
             typeof(WorkItemQueries).GetInterfaces());
+        Assert.Equal(
+            [typeof(IOperationsOverviewQueries)],
+            typeof(OperationsOverviewQueries).GetInterfaces());
+        Assert.Equal(
+            AppSupportHub.Infrastructure.AssemblyReference.Assembly,
+            typeof(PostgreSqlReadinessHealthCheck).Assembly);
     }
 
     [Fact]
