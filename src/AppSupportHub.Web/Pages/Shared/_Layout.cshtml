@@ -32,6 +32,9 @@
                         <a class="nav-link" aria-current="@(currentPage == "/LegacyImports" ? "page" : null)" asp-page="/LegacyImports">Legacy CSV Preview</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" aria-current="@(currentPage == "/Operations" ? "page" : null)" asp-page="/Operations">Operations</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/openapi/v1.json">API document</a>
                     </li>
                     @if (User.Identity?.IsAuthenticated == true)

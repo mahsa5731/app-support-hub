@@ -1,7 +1,9 @@
 using AppSupportHub.Web;
 using AppSupportHub.Web.Api.V1;
 using AppSupportHub.Web.DemoData;
+using AppSupportHub.Web.Operations;
 using AppSupportHub.Web.Security;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -17,6 +19,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddWebApplication(connectionString);
 WebApplication app = builder.Build();
 _ = app.Services.GetRequiredService<PortfolioAccounts>();
+app.UseMiddleware<RequestCorrelationMiddleware>();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -32,7 +35,11 @@ app.UseRateLimiter();
 app.UseAuthorization();
 app.UseAntiforgery();
 app.MapStaticAssets();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = registration => registration.Tags.Contains("ready"),
+});
 app.MapOpenApi();
 app.MapApiV1();
 app.MapRazorPages().WithStaticAssets();

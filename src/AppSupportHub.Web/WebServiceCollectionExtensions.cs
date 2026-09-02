@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using AppSupportHub.Application.ChangeAssessments;
 using AppSupportHub.Application.LegacyImports;
+using AppSupportHub.Application.Operations;
 using AppSupportHub.Application.Systems.ChangeApplicationSystemLifecycle;
 using AppSupportHub.Application.Systems.CreateApplicationSystem;
 using AppSupportHub.Application.Systems.GetApplicationSystem;
@@ -18,8 +19,10 @@ using AppSupportHub.Application.WorkItems.TransitionWorkItemStatus;
 using AppSupportHub.Application.WorkItems.UnassignWorkItem;
 using AppSupportHub.Application.WorkItems.UpdateWorkItemDetails;
 using AppSupportHub.Infrastructure;
+using AppSupportHub.Infrastructure.Health;
 using AppSupportHub.Web.DemoData;
 using AppSupportHub.Web.Security;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AppSupportHub.Web;
 
@@ -33,7 +36,8 @@ public static class WebServiceCollectionExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         services.AddPortfolioSecurity();
-        services.AddHealthChecks();
+        services.AddHealthChecks()
+            .AddCheck<PostgreSqlHealthCheckAdapter>("postgresql", tags: ["ready"]);
         services.AddOpenApi("v1");
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(
             new JsonStringEnumConverter(allowIntegerValues: false)));
@@ -51,6 +55,7 @@ public static class WebServiceCollectionExtensions
         services.AddScoped<GetChangeAssessmentHandler>();
         services.AddScoped<SaveChangeAssessmentHandler>();
         services.AddScoped<PreviewLegacyCsvHandler>();
+        services.AddScoped<GetOperationsOverviewHandler>();
 
         services.AddScoped<WorkItemInputFactory>();
         services.AddScoped<CreateWorkItemHandler>();
@@ -66,5 +71,18 @@ public static class WebServiceCollectionExtensions
         services.AddScoped<DemoDataSeeder>();
 
         return services;
+    }
+
+    private sealed class PostgreSqlHealthCheckAdapter(
+        PostgreSqlReadinessHealthCheck readiness) : IHealthCheck
+    {
+        public async Task<HealthCheckResult> CheckHealthAsync(
+            HealthCheckContext context,
+            CancellationToken cancellationToken = default)
+        {
+            return await readiness.CheckAsync(cancellationToken)
+                ? HealthCheckResult.Healthy()
+                : HealthCheckResult.Unhealthy();
+        }
     }
 }

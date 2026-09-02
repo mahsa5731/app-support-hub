@@ -1,0 +1,96 @@
+@page "/Operations"
+@model AppSupportHub.Web.Pages.OperationsModel
+@{
+    ViewData["Title"] = "Operations";
+}
+
+@if (Model.Overview is { } overview)
+{
+    <div class="page-heading">
+        <div>
+            <h1>Operations overview</h1>
+            <p>Bounded operational evidence for fictional portfolio data.</p>
+        </div>
+    </div>
+
+    <p>
+        As of <time datetime="@overview.AsOfUtc.ToString("O")">@overview.AsOfUtc.ToString("yyyy-MM-dd HH:mm:ss 'UTC'")</time>.
+        This independent demonstration is not affiliated with or endorsed by the City of Winnipeg.
+    </p>
+
+    <section aria-labelledby="summary-heading">
+        <h2 id="summary-heading">Current summary</h2>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-4">
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Total systems</h3>
+                <p class="display-6" data-summary="total-systems">@overview.TotalApplicationSystems</p>
+                <a asp-page="/Systems/Index">View systems</a>
+            </div></div></div>
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Active systems</h3>
+                <p class="display-6" data-summary="active-systems">@overview.ActiveApplicationSystems</p>
+                <a asp-page="/Systems/Index" asp-route-LifecycleStatus="Active">View active systems</a>
+            </div></div></div>
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Open work items</h3>
+                <p class="display-6" data-summary="open-work-items">@overview.OpenWorkItems</p>
+                <a asp-page="/WorkItems/Index">View work items</a>
+            </div></div></div>
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Critical open work items</h3>
+                <p class="display-6" data-summary="critical-open">@overview.CriticalOpenWorkItems</p>
+                <a asp-page="/WorkItems/Index" asp-route-Priority="Critical">View critical items</a>
+            </div></div></div>
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Overdue open work items</h3>
+                <p class="display-6" data-summary="overdue-open">@overview.OverdueOpenWorkItems</p>
+                <a asp-page="/WorkItems/Index" asp-route-OverdueOnly="true">View overdue items</a>
+            </div></div></div>
+            <div class="col"><div class="card h-100"><div class="card-body">
+                <h3 class="h6 card-title">Change requests</h3>
+                <p class="display-6" data-summary="change-requests">@overview.ChangeRequestWorkItems</p>
+                <a asp-page="/WorkItems/Index" asp-route-Type="ChangeRequest">View change requests</a>
+            </div></div></div>
+        </div>
+    </section>
+
+    <section aria-labelledby="overdue-heading">
+        <h2 id="overdue-heading">Most overdue open work items</h2>
+        @if (overview.MostOverdueOpenWorkItems.Count == 0)
+        {
+            <div class="empty-state">
+                <h3>No overdue open work items</h3>
+                <p>The fictional dataset has no overdue open work at this as-of time.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <caption>Up to five most overdue open work items, ordered by due date and ID</caption>
+                    <thead><tr>
+                        <th scope="col">Work item</th>
+                        <th scope="col">System</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Due UTC</th>
+                        <th scope="col">Overdue days</th>
+                    </tr></thead>
+                    <tbody>
+                    @foreach (var item in overview.MostOverdueOpenWorkItems)
+                    {
+                        <tr data-overdue-row>
+                            <th scope="row"><a asp-page="/WorkItems/Details" asp-route-id="@item.Id">@item.Title</a></th>
+                            <td>@item.ApplicationSystemName</td>
+                            <td>@item.Priority</td>
+                            <td>@item.Status</td>
+                            <td><time datetime="@item.DueAtUtc.ToString("O")">@item.DueAtUtc.ToString("yyyy-MM-dd HH:mm 'UTC'")</time></td>
+                            <td>@item.OverdueDays</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
