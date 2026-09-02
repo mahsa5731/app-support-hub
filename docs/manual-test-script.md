@@ -54,6 +54,22 @@ This script is a focused acceptance aid, not security or WCAG certification.
    records only `demo.user@appsupporthub.local`.
 6. Verify `/health` returns 200 and contains no database-readiness claim.
 
+## Phase 05 change assessment
+
+1. Open a fictional ChangeRequest detail, follow “Change assessment”, complete
+   all narratives and risk, save, and verify PRG reloads the same canonical URL
+   with trimmed values, UTC metadata, and the disclosed demo actor.
+2. Save identical values again, then edit one value; verify the form remains
+   usable and no assessment link appears on Incident or Enhancement details.
+
+## Phase 05 legacy CSV preview
+
+1. Open `/LegacyImports`, download the fictional sample, upload it, and verify
+   Ready, Review duplicate, and Reject counts plus text/icon row dispositions.
+2. Verify the page states that it never imports or stores records. Try a wrong
+   header and an oversized/non-CSV file and confirm safe feedback; then verify
+   the Systems count did not change and no import/confirmation control exists.
+
 Record browser, date, pass/fail, and any observation outside the repository.
 Do not enter a real person, organization, credential, customer, or production
 record.

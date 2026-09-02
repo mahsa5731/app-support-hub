@@ -250,3 +250,52 @@ HTTPS requests supplied the no-screenshot smoke evidence. Host and container
 shut down cleanly. No authentication, authorization, readiness check, Swagger
 UI, automatic migration, production seed, CI/CD, deployment, commit, push, tag,
 or line-by-line human review is claimed.
+
+## Phase 05
+
+Codex implemented the deliberately lean Phase 05 slices: one structured,
+idempotent assessment for an existing ChangeRequest and one strict legacy CSV
+preview that validates and labels duplicates without importing, storing, or
+mutating records. The earlier import/audit-trail roadmap promise was removed.
+CsvHelper 33.1.0 is the only new package and is referenced only by
+Infrastructure. AI assistance covered scoped implementation, generated-migration
+review, focused tests, documentation, budget measurement, and local validation;
+no line-by-line human review is claimed.
+
+Measured handwritten growth is 12 production/view files and 1,045 nonblank
+production lines, plus 3 test files, 6 test methods, and 327 nonblank test lines.
+The generated `AddChangeAssessments` migration, designer, and snapshot changes
+are excluded from that production budget. Documentation growth remains below
+the 200-line cap.
+
+Validation performed included:
+
+```text
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.UnitTests/AppSupportHub.UnitTests.csproj --no-build --filter "FullyQualifiedName~Phase05"
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build --filter "FullyQualifiedName~Phase05"
+dotnet test AppSupportHub.sln --no-build
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet ef migrations has-pending-model-changes --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj --startup-project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj --no-build
+git diff --check
+```
+
+The final build passed with zero warnings/errors. Focused tests passed 2 unit
+and 4 integration cases; the final solution run passed 228 unit, 53 integration,
+and 16 architecture cases (297 total) with zero skips. The first full attempt
+exposed two Phase 03 assertions that hard-coded one migration; after correcting
+them to expect the required two, their focused check and the final gate passed.
+The prompt's Web-startup pending-model command was also attempted, but Web
+intentionally lacks EF Design; the existing Infrastructure design-time factory
+confirmed no pending changes without adding a second package or weakening the
+boundary.
+
+The smoke explicitly migrated an ephemeral PostgreSQL 17 container, used the
+existing fictional Development seed, saved/reloaded an assessment, previewed
+the sample as one Ready/duplicate/reject row each, proved the system count stayed
+three, and received HTTP 200 `Healthy`. No browser session was connected, so
+real antiforgery HTTPS requests supplied the interaction evidence. The host,
+container, and temporary files were removed. Known limits remain demo identity,
+preview-only legacy integration, and no authentication, authorization, API
+expansion, upload persistence, import, or production-readiness claim.

@@ -106,8 +106,8 @@ repositories therefore share one change tracker and one `SaveChangesAsync`
 boundary. Infrastructure uses Npgsql and separate Fluent API configurations;
 Domain and Application contain no EF Core attributes or package references.
 
-The relational model contains `application_systems`, `work_items`, and
-`work_item_history_entries`. Domain-created GUIDs are never database-generated,
+The relational model contains `application_systems`, `work_items`,
+`work_item_history_entries`, and `change_assessments`. Domain-created GUIDs are never database-generated,
 enums are readable constrained strings, and UTC instants use PostgreSQL
 `timestamp with time zone`. Application-system names use `citext` for exact,
 case-insensitive uniqueness. Named checks enforce trimmed text, enum values,
@@ -122,7 +122,7 @@ Domain append order, including when timestamps match or an aggregate is
 reloaded. The DbContext rejects tracked history modifications and deletions
 before SQL is issued.
 
-`InitialPostgreSqlPersistence` is the sole migration. Startup does not call
+`InitialPostgreSqlPersistence` and `AddChangeAssessments` are the two migrations. Startup does not call
 `EnsureCreated` or apply migrations. The standard connection key is
 `ConnectionStrings:AppSupportHub`, overridden by
 `ConnectionStrings__AppSupportHub`; business-host startup requires it, while
@@ -231,6 +231,21 @@ with explicit Web input/error/date boundaries and focused real-PostgreSQL HTTP
 tests. The host composes the required database connection and optional
 Development seed gate but never performs automatic migration.
 
-Authentication, authorization, change assessment, legacy import, reporting,
-operational readiness, security hardening, containerization, CI/CD, and
-deployment remain later-phase work.
+## Phase 05 assessment and preview boundaries
+
+`ChangeAssessment` is a Domain entity with one required unique WorkItem foreign
+key. Application verifies that the WorkItem is a ChangeRequest and owns Get and
+idempotent Save orchestration; Infrastructure maps the one-to-one relationship
+and constrained risk string. The Razor Page accepts narrative/risk input but
+uses server time and the existing server-owned demo actor.
+
+Application owns a small legacy-preview parser port and reuses existing system
+input/domain validation. Infrastructure alone references CsvHelper and parses
+strict UTF-8 with invariant culture. The handler caps input at 256 KiB and 100
+rows, labels file/database duplicates, and never calls the unit of work. One
+indexed name-existence query per unique valid name is deliberately retained as
+a clear bounded tradeoff. Web renders results only; there is no import API,
+upload persistence, disposition workflow, or audit subsystem.
+
+Authentication, authorization, reporting, operational readiness, security
+hardening, containerization, CI/CD, and deployment remain later-phase work.

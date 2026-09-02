@@ -46,14 +46,16 @@ and the AI-assistance record when its scope changes.
   persistence integration tests.
 - **Dependency:** Phases 1–3.
 
-## 5. Change assessment and legacy integration demo — Planned
+## 5. Lean change assessment and legacy CSV preview — Completed
 
-- **Objective:** Demonstrate governed change analysis and a safe legacy data
-  boundary.
+- **Objective:** Demonstrate governed change analysis and a safe, read-only
+  legacy data boundary.
 - **Main deliverables:** Structured assessments, acceptance and rollback plans,
-  CSV preview, validation, duplicate detection, and import audit trail.
-- **Required tests:** Assessment-rule, malformed-file, size-limit, duplicate,
-  preview, transaction, and manual import acceptance tests.
+  strict CSV preview, validation, and duplicate detection. Actual import,
+  disposition workflows, upload storage, and an import audit trail are neither
+  implemented nor planned for this portfolio version.
+- **Required tests:** Focused assessment-rule, persistence, malformed-file,
+  size-limit, duplicate, preview, and manual journey tests.
 - **Dependency:** Phases 1–4.
 
 ## 6. Authentication, authorization, and cybersecurity — Planned
@@ -87,6 +89,12 @@ and the AI-assistance record when its scope changes.
 - **Required tests:** Clean CI build, container health, migration/deployment,
   rollback, environment, and deployed smoke tests.
 - **Dependency:** Phases 1–7.
+
+## Portfolio scope guard
+
+Phases 06–08 each deliver only one demonstrable vertical slice, reuse the
+current code, and normally add no more than eight tests. They do not aim for
+production completeness unless the user explicitly changes this scope.
 
 ## 9. Ultra-mode independent final audit — Planned
 

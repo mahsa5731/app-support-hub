@@ -2,10 +2,10 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 04 exposes the
-tested Systems and WorkItems Application workflows through Razor Pages and a
-versioned REST API over PostgreSQL. Authentication, authorization, later
-features, and operations remain planned.
+These requirements define the intended portfolio product. Phase 05 adds a
+tested ChangeRequest assessment and a preview-only CSV boundary to the Phase 04
+Razor/API workflows. Authentication, authorization, later features, and
+operations remain planned.
 
 ## Functional requirements
 
@@ -38,13 +38,12 @@ features, and operations remain planned.
 
 ### Legacy integration boundary
 
-- **FR-IMP-001 — CSV preview:** Authorized users shall preview a supported
-  legacy CSV export before importing any records.
+- **FR-IMP-001 — CSV preview:** Users shall preview a supported legacy CSV
+  export without importing or storing records.
 - **FR-IMP-002 — Validation:** The import boundary shall validate file shape,
-  field values, size limits, and record-level errors without partially applying
-  an invalid batch.
+  field values, size limits, and record-level errors without applying writes.
 - **FR-IMP-003 — Duplicate detection:** The preview shall identify probable
-  duplicates and require an explicit supported disposition before import.
+  duplicates for review. Disposition selection and import are out of scope.
 
 ### Information access and operations
 
@@ -63,9 +62,9 @@ features, and operations remain planned.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Phase 04 implementation traceability
+## Implementation traceability through Phase 05
 
-| Requirement | Implemented evidence through Phase 04 | Remaining delivery |
+| Requirement | Implemented evidence through Phase 05 | Remaining delivery |
 | --- | --- | --- |
 | FR-SYS-001 | Razor and API create, get, bounded search/filter, update, and confirmed lifecycle/retirement workflows persist through Application handlers | Authorization |
 | FR-SYS-002 | Commercial/custom pages and DTOs present ownership, support, vendor, criticality, lifecycle, retirement, and labelled UTC metadata | Authorization |
@@ -74,13 +73,17 @@ features, and operations remain planned.
 | FR-WRK-003 | Razor/API status actions delegate the exact type-aware transition matrix to Domain/Application | Authorization |
 | FR-WRK-004 | Razor/API due-date and detail workflows present overdue text and resolution data with explicit UTC handling | Authorization |
 | FR-WRK-005 | Detail pages/API project chronological immutable history, including stable equal-timestamp order; mutations use a disclosed synthetic server actor | Authenticated actor identity and security audit policy |
+| FR-CHG-001 | One persisted structured assessment per ChangeRequest, with bounded narratives, risk, plans, timestamps, idempotent save, and Razor PRG workflow | Authorization and authenticated assessor identity |
+| FR-IMP-001 | Strict UTF-8 `.csv` upload previews up to 256 KiB and 100 data rows; no upload or record is stored | Partially demonstrated: authorization is absent and actual import is intentionally not planned |
+| FR-IMP-002 | Exact header, shape, vocabulary, field, vendor, size, encoding, and row-limit validation produces safe row/file feedback without database writes | Partially demonstrated by one bounded fictional format |
+| FR-IMP-003 | Case-insensitive in-file LegacyId/name and PostgreSQL name duplicates are labelled for review | Partially demonstrated: no disposition or import workflow is planned |
 | FR-API-001 | Fourteen path-versioned Minimal API routes, Web DTOs, RFC 7807 errors, and `/openapi/v1.json` are implemented and HTTP tested | Authentication, authorization, and later feature APIs |
 | FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
 
-Phase 04 provides user-accessible demo workflows but does not satisfy the
-requirements' “authorized users” condition. Change assessment, legacy import,
-reporting, role-based access, authenticated audit identity, and security audit
-requirements remain planned for their approved later phases.
+Phase 05 provides user-accessible demo workflows but does not satisfy any
+“authorized users” condition. Actual legacy import is intentionally not
+implemented or planned; reporting, role-based access, authenticated identity,
+and security audit requirements remain later work.
 
 ## Non-functional requirements
 
@@ -136,10 +139,15 @@ and an opt-in fictional seed gate. These checks provide accessibility evidence,
 not WCAG certification; security and operational non-functional requirements
 remain incomplete.
 
+Phase 05 advances NFR-MNT-001, NFR-DAT-001, and NFR-TST-001 with a Domain-owned
+assessment invariant, one-to-one PostgreSQL constraints, a bounded Application
+preview port, and focused real-PostgreSQL tests. One indexed database name check
+per unique valid row is an explicit simple tradeoff under the 100-row ceiling.
+
 ## Out of scope
 
 The project excludes actual City data, actual employer systems, PowerBuilder
 code, Classic ASP code, Oracle or PL/SQL implementation, microservices, native
-mobile applications, email delivery, and permanent file storage. The future CSV
-import boundary demonstrates integration design only; it does not claim to
-implement or operate any employer technology.
+mobile applications, email delivery, permanent file storage, and actual legacy
+data import. The CSV preview boundary demonstrates integration design only; it
+does not claim to implement or operate any employer technology.

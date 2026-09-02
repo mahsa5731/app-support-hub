@@ -3,16 +3,16 @@
 AppSupportHub is an independent portfolio demonstration of an internal
 application-support and change-management portal for an enterprise information
 technology team. The eventual product will bring application cataloguing,
-support work, change assessment, legacy import boundaries, and operational
+support work, change assessment, legacy preview boundaries, and operational
 reporting into one maintainable system.
 
-## Status: Phase 04 — Core Web and API workflow
+## Status: Phase 05 — Change assessment and legacy CSV preview
 
 Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
 Application workflows over PostgreSQL. The UI includes bounded filters,
 validated forms, lifecycle and work-item actions, UTC dates, and immutable
-history. The API publishes built-in OpenAPI JSON and consistent RFC 7807
-errors. Focused HTTP integration tests use real PostgreSQL 17 Testcontainers.
+history. Phase 05 adds one structured assessment per ChangeRequest and a
+strictly preview-only legacy-system CSV boundary. The API remains unchanged.
 
 AppSupportHub is an independent portfolio project. It is **not affiliated with,
 endorsed by, or built for the City of Winnipeg**. It does not use City data or
@@ -23,19 +23,20 @@ connect to City systems.
 - .NET 10 and C# 14
 - ASP.NET Core Razor Pages
 - PostgreSQL 17, EF Core 10, and Npgsql
+- CsvHelper 33.1.0 for the Infrastructure CSV adapter
 - Testcontainers for isolated PostgreSQL integration tests
 - xUnit
 - Built-in .NET analyzers, OpenAPI generation, and health checks
 
-Authentication, authorization, external integrations, reporting, operational
+Authentication, authorization, real legacy import, reporting, operational
 readiness, deployment automation, and a frontend build pipeline are not
-included in Phase 04.
+included in Phase 05.
 
 ## Solution structure
 
 ```text
 src/
-  AppSupportHub.Domain/          Systems and WorkItems business rules
+  AppSupportHub.Domain/          Systems, WorkItems, and assessment rules
   AppSupportHub.Application/     Explicit workflows, input parsing, and ports
   AppSupportHub.Infrastructure/  EF Core PostgreSQL mappings and repositories
   AppSupportHub.Web/             Razor Pages, Minimal API v1, and composition
@@ -92,11 +93,17 @@ macOS/Linux setup and shutdown guidance.
 
 The local host exposes:
 
-- `/` — the Phase 04 project-status page
+- `/` — the project-status page
 - `/Systems` and `/WorkItems` — server-rendered workflows
+- `/WorkItems/{workItemId}/Assessment` — ChangeRequest assessment form
+- `/LegacyImports` — preview-only legacy CSV upload
 - `/api/v1/systems` and `/api/v1/work-items` — REST API v1
 - `/openapi/v1.json` — OpenAPI document
 - `/health` — the built-in liveness health response
+
+CSV previews accept strict UTF-8 `.csv` files no larger than 256 KiB and 100
+data rows, with the exact header shown in the downloadable fictional sample.
+Previewing never stores the upload or changes application-system records.
 
 The HTTPS launch profile listens on `https://localhost:7130` and redirects the
 corresponding local HTTP endpoint to HTTPS. Local port settings can be changed
@@ -121,13 +128,13 @@ through standard ASP.NET Core launch configuration.
 
 ## Current limitations
 
-Phase 04 is an unauthenticated demonstration. All mutations use the disclosed
+Phase 05 is an unauthenticated demonstration. All mutations use the disclosed
 server-owned demo actor; it is not an authenticated identity. The project has
-no authorization, change assessment, legacy import, reporting, readiness check,
-rate limiting, security hardening, Dockerfile or Compose configuration, CI/CD,
-deployment automation, or production operations configuration. The basic
-accessibility checks are not a WCAG certification. This is not a
-production-ready service.
+no authorization, actual legacy import, reporting, readiness check, rate
+limiting, security hardening, Dockerfile or Compose configuration, CI/CD,
+deployment automation, or production operations configuration. The CSV
+boundary only previews validation and duplicates. The basic accessibility
+checks are not a WCAG certification. This is not a production-ready service.
 
 ## License
 
