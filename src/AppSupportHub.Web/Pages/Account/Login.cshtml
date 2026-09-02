@@ -1,0 +1,31 @@
+@page "/Account/Login"
+@model AppSupportHub.Web.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1>Login</h1>
+@if (!Model.InteractiveLoginEnabled)
+{
+    <div class="alert alert-info" role="status">
+        Interactive login is not configured. AppSupportHub remains available as a public read-only demo.
+    </div>
+}
+else
+{
+    <p>Use an externally configured portfolio Analyst or Administrator account.</p>
+    <form method="post" class="form-card">
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        <div class="mb-3">
+            <label asp-for="Input.Username" class="form-label"></label>
+            <input asp-for="Input.Username" class="form-control" autocomplete="username" />
+            <span asp-validation-for="Input.Username" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.Password" class="form-label"></label>
+            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+}

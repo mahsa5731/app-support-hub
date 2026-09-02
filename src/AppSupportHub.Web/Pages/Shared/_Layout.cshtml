@@ -34,11 +34,29 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/openapi/v1.json">API document</a>
                     </li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        string role = User.IsInRole(SecurityRoles.Administrator)
+                            ? SecurityRoles.Administrator
+                            : SecurityRoles.Analyst;
+                        <li class="nav-item"><span class="nav-link">@User.Identity.Name (@role)</span></li>
+                        <li class="nav-item">
+                            <form method="post" asp-page="/Account/Login" asp-page-handler="Logout">
+                                <button type="submit" class="btn btn-link nav-link">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Account/Login">Login</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>
         <div class="demo-notice" role="note">
-            <div class="container">Demo mode — authentication is planned for Phase 06</div>
+            <div class="container">Public read-only portfolio demo — authentication is required to change data</div>
         </div>
     </header>
     <div class="container">

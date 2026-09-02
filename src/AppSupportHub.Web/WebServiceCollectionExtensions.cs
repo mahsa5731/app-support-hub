@@ -19,6 +19,7 @@ using AppSupportHub.Application.WorkItems.UnassignWorkItem;
 using AppSupportHub.Application.WorkItems.UpdateWorkItemDetails;
 using AppSupportHub.Infrastructure;
 using AppSupportHub.Web.DemoData;
+using AppSupportHub.Web.Security;
 
 namespace AppSupportHub.Web;
 
@@ -31,7 +32,7 @@ public static class WebServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        services.AddRazorPages();
+        services.AddPortfolioSecurity();
         services.AddHealthChecks();
         services.AddOpenApi("v1");
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(
