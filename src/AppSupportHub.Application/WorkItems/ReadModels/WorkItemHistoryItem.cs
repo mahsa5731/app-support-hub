@@ -8,4 +8,7 @@ public sealed record WorkItemHistoryItem(
     DateTimeOffset OccurredAtUtc,
     string? PreviousValue,
     string? NewValue,
-    string? Comment);
+    string? Comment)
+{
+    public string EventTypeName => EventType.ToString();
+}

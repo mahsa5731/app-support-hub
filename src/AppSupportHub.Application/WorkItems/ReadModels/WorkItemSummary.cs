@@ -14,4 +14,11 @@ public sealed record WorkItemSummary(
     DateTimeOffset? DueAtUtc,
     DateTimeOffset CreatedAtUtc,
     DateTimeOffset UpdatedAtUtc,
-    bool IsOverdue);
+    bool IsOverdue)
+{
+    public string TypeName => Type.ToString();
+
+    public string PriorityName => Priority.ToString();
+
+    public string StatusName => Status.ToString();
+}

@@ -18,4 +18,11 @@ public sealed record WorkItemDetail(
     bool IsOverdue,
     string? ResolutionSummary,
     DateTimeOffset? ResolvedAtUtc,
-    IReadOnlyList<WorkItemHistoryItem> History);
+    IReadOnlyList<WorkItemHistoryItem> History)
+{
+    public string TypeName => Type.ToString();
+
+    public string PriorityName => Priority.ToString();
+
+    public string StatusName => Status.ToString();
+}

@@ -13,4 +13,11 @@ public sealed record ApplicationSystemSummary(
     string SupportTeam,
     string? VendorName,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset UpdatedAtUtc);
+    DateTimeOffset UpdatedAtUtc)
+{
+    public string TypeName => Type.ToString();
+
+    public string CriticalityName => Criticality.ToString();
+
+    public string LifecycleStatusName => LifecycleStatus.ToString();
+}

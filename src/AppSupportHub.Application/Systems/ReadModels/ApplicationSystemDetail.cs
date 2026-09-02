@@ -16,4 +16,11 @@ public sealed record ApplicationSystemDetail(
     DateTimeOffset CreatedAtUtc,
     DateTimeOffset UpdatedAtUtc,
     DateTimeOffset? RetiredAtUtc,
-    string? RetirementReason);
+    string? RetirementReason)
+{
+    public string TypeName => Type.ToString();
+
+    public string CriticalityName => Criticality.ToString();
+
+    public string LifecycleStatusName => LifecycleStatus.ToString();
+}
