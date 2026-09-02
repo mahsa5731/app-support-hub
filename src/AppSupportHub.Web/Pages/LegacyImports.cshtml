@@ -1,0 +1,56 @@
+@page "/LegacyImports"
+@model AppSupportHub.Web.Pages.LegacyImportsModel
+@{
+    ViewData["Title"] = "Legacy CSV Preview";
+}
+
+<h1>Legacy CSV Preview</h1>
+<p class="lead">Preview validation and duplicates only. This page never imports or stores records.</p>
+<p>
+    Use the exact ten-column header, UTF-8 encoding, no more than 100 data rows, and a
+    maximum file size of 256 KiB. <a href="~/samples/legacy-systems.csv" download>Download the fictional sample CSV</a>.
+</p>
+
+<form method="post" enctype="multipart/form-data" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <label asp-for="Upload" class="form-label">CSV file</label>
+    <input asp-for="Upload" type="file" accept=".csv,text/csv" class="form-control" />
+    <span asp-validation-for="Upload" class="text-danger"></span>
+    <button type="submit" class="btn btn-primary mt-3">Preview CSV</button>
+</form>
+
+@if (Model.Preview is { } preview)
+{
+    <section aria-labelledby="preview-heading" class="section-card">
+        <h2 id="preview-heading">Preview results</h2>
+        <p>
+            <strong>✓ Ready: @preview.ReadyCount</strong> ·
+            <strong>⚠ Review duplicate: @preview.ReviewDuplicateCount</strong> ·
+            <strong>✕ Reject: @preview.RejectCount</strong>
+        </p>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <caption>Validation and duplicate disposition for each uploaded row</caption>
+                <thead><tr><th scope="col">Row</th><th scope="col">Legacy ID</th><th scope="col">Name</th><th scope="col">Disposition</th><th scope="col">Details</th></tr></thead>
+                <tbody>
+                @foreach (var row in preview.Rows)
+                {
+                    <tr>
+                        <td>@row.RowNumber</td>
+                        <td>@row.LegacyId</td>
+                        <td>@row.Name</td>
+                        <td>@(row.Disposition == AppSupportHub.Application.LegacyImports.LegacyCsvDisposition.Ready ? "✓ Ready" : row.Disposition == AppSupportHub.Application.LegacyImports.LegacyCsvDisposition.ReviewDuplicate ? "⚠ Review duplicate" : "✕ Reject")</td>
+                        <td>
+                            @if (row.DuplicateLegacyIdInFile) { <span>Duplicate LegacyId in file. </span> }
+                            @if (row.DuplicateNameInFile) { <span>Duplicate name in file. </span> }
+                            @if (row.DuplicateNameInDatabase) { <span>Name already exists. </span> }
+                            @foreach (string error in row.Errors) { <span>@error </span> }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <p><strong>No records were imported or changed.</strong></p>
+    </section>
+}

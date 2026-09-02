@@ -1,0 +1,70 @@
+@page "/WorkItems/{workItemId:guid}/Assessment"
+@model AppSupportHub.Web.Pages.WorkItems.AssessmentModel
+@{
+    ViewData["Title"] = "Change assessment";
+}
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="alert alert-success" role="status">@statusMessage</div>
+}
+
+<a asp-page="Details" asp-route-id="@Model.WorkItemId">&larr; @Model.WorkItemTitle</a>
+<h1>Change assessment</h1>
+<p>
+    Record the business, technical, security, testing, and rollback analysis for this
+    change request. Demo mode uses the server-owned actor; all dates below are UTC.
+</p>
+
+<form method="post" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="mb-3">
+        <label asp-for="Input.BusinessNeed" class="form-label"></label>
+        <textarea asp-for="Input.BusinessNeed" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.BusinessNeed" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.TechnicalImpact" class="form-label"></label>
+        <textarea asp-for="Input.TechnicalImpact" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.TechnicalImpact" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.SecurityImpact" class="form-label"></label>
+        <textarea asp-for="Input.SecurityImpact" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.SecurityImpact" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Risk" class="form-label"></label>
+        <select asp-for="Input.Risk" class="form-select">
+            @foreach (string risk in Model.Risks)
+            {
+                <option value="@risk">@risk</option>
+            }
+        </select>
+        <span asp-validation-for="Input.Risk" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.AcceptanceCriteria" class="form-label"></label>
+        <textarea asp-for="Input.AcceptanceCriteria" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.AcceptanceCriteria" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.TestPlan" class="form-label"></label>
+        <textarea asp-for="Input.TestPlan" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.TestPlan" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.RollbackPlan" class="form-label"></label>
+        <textarea asp-for="Input.RollbackPlan" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.RollbackPlan" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save assessment</button>
+</form>
+
+@if (Model.ExistingAssessment is { } assessment)
+{
+    <p class="text-muted">
+        Assessed by @assessment.AssessedByIdentifier · Created @assessment.CreatedAtUtc.ToString("u") UTC ·
+        Updated @assessment.UpdatedAtUtc.ToString("u") UTC
+    </p>
+}

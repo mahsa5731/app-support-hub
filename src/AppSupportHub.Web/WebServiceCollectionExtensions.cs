@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using AppSupportHub.Application.ChangeAssessments;
+using AppSupportHub.Application.LegacyImports;
 using AppSupportHub.Application.Systems.ChangeApplicationSystemLifecycle;
 using AppSupportHub.Application.Systems.CreateApplicationSystem;
 using AppSupportHub.Application.Systems.GetApplicationSystem;
@@ -43,6 +45,11 @@ public static class WebServiceCollectionExtensions
         services.AddScoped<ListApplicationSystemsHandler>();
         services.AddScoped<UpdateApplicationSystemHandler>();
         services.AddScoped<ChangeApplicationSystemLifecycleHandler>();
+
+        services.AddScoped<ChangeAssessmentInputFactory>();
+        services.AddScoped<GetChangeAssessmentHandler>();
+        services.AddScoped<SaveChangeAssessmentHandler>();
+        services.AddScoped<PreviewLegacyCsvHandler>();
 
         services.AddScoped<WorkItemInputFactory>();
         services.AddScoped<CreateWorkItemHandler>();

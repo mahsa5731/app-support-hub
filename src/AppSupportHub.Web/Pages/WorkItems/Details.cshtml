@@ -15,7 +15,13 @@
         <h1>@Model.WorkItem.Title</h1>
         <p>@Model.WorkItem.Description</p>
     </div>
-    <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.WorkItem.Id">Edit details</a>
+    <div class="d-flex gap-2">
+        @if (Model.WorkItem.TypeName == "ChangeRequest")
+        {
+            <a class="btn btn-outline-primary" asp-page="Assessment" asp-route-workItemId="@Model.WorkItem.Id">Change assessment</a>
+        }
+        <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.WorkItem.Id">Edit details</a>
+    </div>
 </div>
 
 <dl class="detail-grid">
