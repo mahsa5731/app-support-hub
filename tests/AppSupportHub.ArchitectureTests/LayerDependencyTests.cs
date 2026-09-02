@@ -1,11 +1,16 @@
 using System.Reflection;
 using System.Xml.Linq;
+using AppSupportHub.Application.Systems.Inputs;
+using AppSupportHub.Application.Systems.ListApplicationSystems;
 using AppSupportHub.Application.Systems.Queries;
 using AppSupportHub.Application.Systems.ReadModels;
 using AppSupportHub.Application.WorkItems.Queries;
 using AppSupportHub.Application.WorkItems.ReadModels;
 using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
 using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
+using AppSupportHub.Web.Api.V1.Systems;
+using AppSupportHub.Web.Pages.Systems;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AppSupportHub.ArchitectureTests;
 
@@ -116,6 +121,84 @@ public sealed class LayerDependencyTests
         AssertDoesNotReference(
             AppSupportHub.Web.AssemblyReference.Assembly,
             DomainAssemblyName);
+    }
+
+    [Fact]
+    public void WebDoesNotReferencePersistenceFrameworkAssembliesOrPersistenceTypes()
+    {
+        Assembly webAssembly = AppSupportHub.Web.AssemblyReference.Assembly;
+
+        AssertDoesNotReferenceAssemblyPrefixes(
+            webAssembly,
+            "Microsoft.EntityFrameworkCore",
+            "Npgsql");
+
+        string webRoot = Path.Combine(FindSolutionRoot(), "src", WebAssemblyName);
+        string source = string.Join(
+            '\n',
+            Directory.EnumerateFiles(webRoot, "*.cs", SearchOption.AllDirectories)
+                .Where(path => !path.Contains(
+                    $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
+                    StringComparison.Ordinal))
+                .Select(File.ReadAllText));
+
+        Assert.DoesNotContain("AppSupportHubDbContext", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("IApplicationSystemRepository", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("IWorkItemRepository", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PresentationTypesAreOwnedByWebAndWorkflowTypesAreOwnedByApplication()
+    {
+        Assert.Equal(AppSupportHub.Web.AssemblyReference.Assembly, typeof(SystemApiEndpoints).Assembly);
+        Assert.Equal(AppSupportHub.Web.AssemblyReference.Assembly, typeof(IndexModel).Assembly);
+        Assert.True(typeof(PageModel).IsAssignableFrom(typeof(IndexModel)));
+
+        Assert.Equal(
+            AppSupportHub.Application.AssemblyReference.Assembly,
+            typeof(ApplicationSystemInputFactory).Assembly);
+        Assert.Equal(
+            AppSupportHub.Application.AssemblyReference.Assembly,
+            typeof(ListApplicationSystemsHandler).Assembly);
+    }
+
+    [Fact]
+    public void Phase04WebPackagesAreConfinedToApprovedProjects()
+    {
+        string solutionRoot = FindSolutionRoot();
+        Dictionary<string, string> projects = new(StringComparer.Ordinal)
+        {
+            [DomainAssemblyName] = Path.Combine("src", DomainAssemblyName),
+            [ApplicationAssemblyName] = Path.Combine("src", ApplicationAssemblyName),
+            [InfrastructureAssemblyName] = Path.Combine("src", InfrastructureAssemblyName),
+            [WebAssemblyName] = Path.Combine("src", WebAssemblyName),
+            ["AppSupportHub.UnitTests"] = Path.Combine("tests", "AppSupportHub.UnitTests"),
+            ["AppSupportHub.IntegrationTests"] = Path.Combine("tests", "AppSupportHub.IntegrationTests"),
+            ["AppSupportHub.ArchitectureTests"] = Path.Combine("tests", "AppSupportHub.ArchitectureTests"),
+        };
+
+        foreach ((string projectName, string projectDirectory) in projects)
+        {
+            string projectPath = Path.Combine(
+                solutionRoot,
+                projectDirectory,
+                $"{projectName}.csproj");
+            HashSet<string> packages = GetPackageReferences(projectPath);
+
+            Assert.Equal(
+                projectName == WebAssemblyName,
+                packages.Contains("Microsoft.AspNetCore.OpenApi"));
+            Assert.Equal(
+                projectName == "AppSupportHub.IntegrationTests",
+                packages.Contains("Microsoft.AspNetCore.Mvc.Testing"));
+        }
+
+        Assert.Equal(
+            "10.0.11",
+            GetCentralPackageVersion(solutionRoot, "Microsoft.AspNetCore.OpenApi"));
+        Assert.Equal(
+            "10.0.11",
+            GetCentralPackageVersion(solutionRoot, "Microsoft.AspNetCore.Mvc.Testing"));
     }
 
     [Fact]
