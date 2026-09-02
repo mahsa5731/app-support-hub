@@ -1,38 +1,42 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Foundation";
+    ViewData["Title"] = "Home";
 }
 
 <section class="hero" aria-labelledby="page-title">
-    <span class="phase-label">Phase 03: PostgreSQL and Infrastructure</span>
+    <span class="phase-label">Phase 04: Application workflows</span>
     <h1 id="page-title">AppSupportHub</h1>
     <p class="lead">
-        A portfolio foundation for an internal application-support and change-management portal.
+        A server-rendered application-support and change-management portfolio portal.
     </p>
     <p>
-        PostgreSQL persistence is implemented and tested against real isolated database
-        containers. Business-facing Web or API workflows remain planned and are not exposed by
-        this foundation page.
+        Maintain fictional application systems and their incidents, enhancements, and change
+        requests through accessible Razor Pages or the versioned REST API. PostgreSQL persistence
+        and immutable work-item history sit behind the same Application workflows.
     </p>
+    <div class="d-flex flex-wrap gap-2 mt-4">
+        <a class="btn btn-primary" asp-page="/Systems/Index">Browse systems</a>
+        <a class="btn btn-outline-primary" asp-page="/WorkItems/Index">Browse work items</a>
+    </div>
 </section>
 
-<section class="foundation-grid" aria-label="Current foundation">
+<section class="foundation-grid" aria-label="Implemented Phase 04 capabilities">
     <article>
-        <h2>Clear boundaries</h2>
-        <p>A modular monolith separates Domain, Application, Infrastructure, and Web concerns.</p>
+        <h2>System inventory</h2>
+        <p>Create, search, update, and make confirmed lifecycle changes without physical deletion.</p>
     </article>
     <article>
-        <h2>Enforced quality</h2>
-        <p>Central build standards and architecture tests keep the foundation consistent.</p>
+        <h2>Support workflows</h2>
+        <p>Track assignments, priorities, UTC due dates, status transitions, and immutable history.</p>
     </article>
     <article>
-        <h2>Operational baseline</h2>
-        <p>A Razor Pages host and liveness health check provide a small, verifiable starting point.</p>
+        <h2>Versioned API</h2>
+        <p>Use the documented <a href="/openapi/v1.json">REST API v1 OpenAPI document</a> for the same workflows.</p>
     </article>
 </section>
 
 <aside class="disclaimer" aria-label="Project disclaimer">
     AppSupportHub is an independent portfolio project. It is not affiliated with, endorsed by,
-    or built for the City of Winnipeg.
+    or built for the City of Winnipeg. All optional demo records are fictional.
 </aside>

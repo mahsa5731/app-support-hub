@@ -1,0 +1,93 @@
+@page "/Systems/{id:guid}"
+@model AppSupportHub.Web.Pages.Systems.DetailsModel
+@{
+    ViewData["Title"] = Model.System.Name;
+}
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="alert alert-success" role="status">@statusMessage</div>
+}
+
+<div class="page-heading">
+    <div>
+        <a asp-page="Index">&larr; Systems</a>
+        <h1>@Model.System.Name</h1>
+        <p>@Model.System.Description</p>
+    </div>
+    <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.System.Id">Edit metadata</a>
+</div>
+
+<dl class="detail-grid">
+    <div><dt>Type</dt><dd>@Model.System.TypeName</dd></div>
+    <div><dt>Criticality</dt><dd>@Model.System.CriticalityName</dd></div>
+    <div><dt>Lifecycle</dt><dd>@Model.System.LifecycleStatusName</dd></div>
+    <div><dt>Business owner</dt><dd>@Model.System.BusinessOwner</dd></div>
+    <div><dt>Technical owner</dt><dd>@Model.System.TechnicalOwner</dd></div>
+    <div><dt>Support team</dt><dd>@Model.System.SupportTeam</dd></div>
+    <div><dt>Vendor</dt><dd>@(Model.System.VendorName ?? "Not applicable")</dd></div>
+    <div><dt>Created (UTC)</dt><dd>@Model.System.CreatedAtUtc.ToString("u")</dd></div>
+    <div><dt>Updated (UTC)</dt><dd>@Model.System.UpdatedAtUtc.ToString("u")</dd></div>
+    @if (Model.System.RetiredAtUtc is not null)
+    {
+        <div><dt>Retired (UTC)</dt><dd>@Model.System.RetiredAtUtc.Value.ToString("u")</dd></div>
+        <div><dt>Retirement reason</dt><dd>@Model.System.RetirementReason</dd></div>
+    }
+</dl>
+
+<section aria-labelledby="related-heading" class="section-card">
+    <div class="page-heading compact">
+        <h2 id="related-heading">Related work items</h2>
+        @if (Model.System.LifecycleStatusName != "Retired")
+        {
+            <a class="btn btn-sm btn-outline-primary" asp-page="/WorkItems/Create" asp-route-applicationSystemId="@Model.System.Id">Create work item</a>
+        }
+    </div>
+    @if (Model.RelatedWorkItems.Count == 0)
+    {
+        <p>No related work items.</p>
+    }
+    else
+    {
+        <ul class="item-list">
+            @foreach (var workItem in Model.RelatedWorkItems)
+            {
+                <li>
+                    <a asp-page="/WorkItems/Details" asp-route-id="@workItem.Id">@workItem.Title</a>
+                    <span>@workItem.StatusName · @workItem.PriorityName</span>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<section aria-labelledby="lifecycle-heading" class="section-card">
+    <h2 id="lifecycle-heading">Change lifecycle</h2>
+    <p>Retirement is logical only; this action never deletes the system.</p>
+    <form method="post" asp-page-handler="Lifecycle">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="TargetLifecycleStatus" class="form-label">Target lifecycle</label>
+                <select asp-for="TargetLifecycleStatus" class="form-select">
+                    @foreach (string option in Model.LifecycleStatuses)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+                <span asp-validation-for="TargetLifecycleStatus" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="RetirementReason" class="form-label">Retirement reason (required when retiring)</label>
+                <input asp-for="RetirementReason" class="form-control" />
+                <span asp-validation-for="RetirementReason" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-check my-3">
+            <input asp-for="ConfirmLifecycleChange" class="form-check-input" />
+            <label asp-for="ConfirmLifecycleChange" class="form-check-label">I confirm this lifecycle change</label>
+            <span asp-validation-for="ConfirmLifecycleChange" class="text-danger d-block"></span>
+        </div>
+        <button type="submit" class="btn btn-warning">Apply lifecycle change</button>
+    </form>
+</section>

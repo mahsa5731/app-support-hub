@@ -1,0 +1,115 @@
+@page "/WorkItems"
+@model AppSupportHub.Web.Pages.WorkItems.IndexModel
+@{
+    ViewData["Title"] = "Work items";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Work items</h1>
+        <p>Review incidents, enhancements, and change requests.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="Create">Create work item</a>
+</div>
+
+<form method="get" class="filter-panel" aria-label="Work-item filters">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label asp-for="TitleSearch" class="form-label">Title contains</label>
+            <input asp-for="TitleSearch" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ApplicationSystemId" class="form-label">System ID</label>
+            <input asp-for="ApplicationSystemId" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="AssigneeIdentifier" class="form-label">Assignee</label>
+            <input asp-for="AssigneeIdentifier" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Type" class="form-label"></label>
+            <select asp-for="Type" class="form-select">
+                <option value="">All types</option>
+                @foreach (string option in Model.Types)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Priority" class="form-label"></label>
+            <select asp-for="Priority" class="form-select">
+                <option value="">All priorities</option>
+                @foreach (string option in Model.Priorities)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" class="form-select">
+                <option value="">All statuses</option>
+                @foreach (string option in Model.Statuses)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <div class="form-check">
+                <input asp-for="OverdueOnly" class="form-check-input" />
+                <label asp-for="OverdueOnly" class="form-check-label">Overdue only</label>
+            </div>
+        </div>
+        <div class="col-md-4 d-grid">
+            <button type="submit" class="btn btn-outline-primary">Apply filters</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.WorkItems.Count == 0)
+{
+    <div class="empty-state">
+        <h2>No work items found</h2>
+        <p>Adjust the filters or create a work item for an active fictional system.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <caption class="visually-hidden">Work items matching the current filters</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">System</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Due (UTC)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var workItem in Model.WorkItems)
+                {
+                    <tr>
+                        <th scope="row"><a asp-page="Details" asp-route-id="@workItem.Id">@workItem.Title</a></th>
+                        <td><a asp-page="/Systems/Details" asp-route-id="@workItem.ApplicationSystemId">@workItem.ApplicationSystemName</a></td>
+                        <td>@workItem.TypeName</td>
+                        <td><span class="status-badge">@workItem.PriorityName</span></td>
+                        <td><span class="status-badge">@workItem.StatusName</span></td>
+                        <td>
+                            @(workItem.DueAtUtc?.ToString("u") ?? "No due date")
+                            @if (workItem.IsOverdue)
+                            {
+                                <strong class="overdue-text">Overdue</strong>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

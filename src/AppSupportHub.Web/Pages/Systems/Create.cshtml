@@ -1,0 +1,82 @@
+@page "/Systems/Create"
+@model AppSupportHub.Web.Pages.Systems.CreateModel
+@{
+    ViewData["Title"] = "Create system";
+}
+
+<h1>Create application system</h1>
+<p class="text-muted">All fields except vendor name are required. Commercial systems require a vendor.</p>
+
+<form method="post" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="mb-3">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="form-control" />
+        <span asp-validation-for="Input.Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Description" class="form-label"></label>
+        <textarea asp-for="Input.Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Input.Description" class="text-danger"></span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Input.Type" class="form-label"></label>
+            <select asp-for="Input.Type" class="form-select">
+                <option value="">Choose a type</option>
+                @foreach (string option in Model.Types)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Type" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Input.Criticality" class="form-label"></label>
+            <select asp-for="Input.Criticality" class="form-select">
+                <option value="">Choose criticality</option>
+                @foreach (string option in Model.Criticalities)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Criticality" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="InitialLifecycleStatus" class="form-label">Initial lifecycle</label>
+            <select asp-for="InitialLifecycleStatus" class="form-select">
+                @foreach (string option in Model.InitialLifecycleStatuses)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="InitialLifecycleStatus" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row g-3 mt-0">
+        <div class="col-md-6">
+            <label asp-for="Input.BusinessOwner" class="form-label"></label>
+            <input asp-for="Input.BusinessOwner" class="form-control" />
+            <span asp-validation-for="Input.BusinessOwner" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.TechnicalOwner" class="form-label"></label>
+            <input asp-for="Input.TechnicalOwner" class="form-control" />
+            <span asp-validation-for="Input.TechnicalOwner" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.SupportTeam" class="form-label"></label>
+            <input asp-for="Input.SupportTeam" class="form-control" />
+            <span asp-validation-for="Input.SupportTeam" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.VendorName" class="form-label"></label>
+            <input asp-for="Input.VendorName" class="form-control" />
+            <span asp-validation-for="Input.VendorName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create system</button>
+        <a class="btn btn-link" asp-page="Index">Cancel</a>
+    </div>
+</form>

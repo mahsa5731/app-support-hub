@@ -1,0 +1,130 @@
+@page "/WorkItems/{id:guid}"
+@model AppSupportHub.Web.Pages.WorkItems.DetailsModel
+@{
+    ViewData["Title"] = Model.WorkItem.Title;
+}
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="alert alert-success" role="status">@statusMessage</div>
+}
+
+<div class="page-heading">
+    <div>
+        <a asp-page="Index">&larr; Work items</a>
+        <h1>@Model.WorkItem.Title</h1>
+        <p>@Model.WorkItem.Description</p>
+    </div>
+    <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.WorkItem.Id">Edit details</a>
+</div>
+
+<dl class="detail-grid">
+    <div><dt>System</dt><dd><a asp-page="/Systems/Details" asp-route-id="@Model.WorkItem.ApplicationSystemId">@Model.WorkItem.ApplicationSystemName</a></dd></div>
+    <div><dt>Type</dt><dd>@Model.WorkItem.TypeName</dd></div>
+    <div><dt>Priority</dt><dd><span class="status-badge">@Model.WorkItem.PriorityName</span></dd></div>
+    <div><dt>Status</dt><dd><span class="status-badge">@Model.WorkItem.StatusName</span></dd></div>
+    <div><dt>Assignee</dt><dd>@(Model.WorkItem.AssigneeIdentifier ?? "Unassigned")</dd></div>
+    <div>
+        <dt>Due (UTC)</dt>
+        <dd>
+            @(Model.WorkItem.DueAtUtc?.ToString("u") ?? "No due date")
+            @if (Model.WorkItem.IsOverdue)
+            {
+                <strong class="overdue-text">Overdue</strong>
+            }
+        </dd>
+    </div>
+    <div><dt>Created (UTC)</dt><dd>@Model.WorkItem.CreatedAtUtc.ToString("u")</dd></div>
+    <div><dt>Updated (UTC)</dt><dd>@Model.WorkItem.UpdatedAtUtc.ToString("u")</dd></div>
+    @if (Model.WorkItem.ResolvedAtUtc is not null)
+    {
+        <div><dt>Resolved (UTC)</dt><dd>@Model.WorkItem.ResolvedAtUtc.Value.ToString("u")</dd></div>
+        <div><dt>Resolution</dt><dd>@Model.WorkItem.ResolutionSummary</dd></div>
+    }
+</dl>
+
+<section aria-labelledby="actions-heading" class="section-card">
+    <h2 id="actions-heading">Work-item actions</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="action-grid">
+        <form method="post" asp-page-handler="Assign">
+            <h3>Assignment</h3>
+            <label asp-for="AssigneeIdentifier" class="form-label">Assignee identifier</label>
+            <input asp-for="AssigneeIdentifier" class="form-control" />
+            <span asp-validation-for="AssigneeIdentifier" class="text-danger"></span>
+            <button type="submit" class="btn btn-outline-primary mt-2">Assign</button>
+        </form>
+        <form method="post" asp-page-handler="Unassign">
+            <h3>Remove assignment</h3>
+            <p>Clear the current assignee.</p>
+            <button type="submit" class="btn btn-outline-primary">Unassign</button>
+        </form>
+        <form method="post" asp-page-handler="Priority">
+            <h3>Priority</h3>
+            <label asp-for="Priority" class="form-label">New priority</label>
+            <select asp-for="Priority" class="form-select">
+                @foreach (string option in Model.Priorities)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="Priority" class="text-danger"></span>
+            <button type="submit" class="btn btn-outline-primary mt-2">Update priority</button>
+        </form>
+        <form method="post" asp-page-handler="DueDate">
+            <h3>Due date</h3>
+            <label asp-for="DueAtUtc" class="form-label">Due date and time (UTC)</label>
+            <input asp-for="DueAtUtc" type="datetime-local" class="form-control" />
+            <div class="form-text">UTC; clear the value to remove the due date.</div>
+            <span asp-validation-for="DueAtUtc" class="text-danger"></span>
+            <button type="submit" class="btn btn-outline-primary mt-2">Update due date</button>
+        </form>
+    </div>
+    <form method="post" asp-page-handler="Transition" class="transition-form">
+        <h3>Status transition</h3>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="TargetStatus" class="form-label">Target status</label>
+                <select asp-for="TargetStatus" class="form-select">
+                    @foreach (string option in Model.Statuses)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+                <span asp-validation-for="TargetStatus" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Comment" class="form-label">Comment</label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ResolutionSummary" class="form-label">Resolution summary</label>
+                <input asp-for="ResolutionSummary" class="form-control" />
+                <span asp-validation-for="ResolutionSummary" class="text-danger"></span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-warning mt-3">Apply status transition</button>
+    </form>
+</section>
+
+<section aria-labelledby="history-heading" class="section-card">
+    <h2 id="history-heading">Immutable history</h2>
+    <ol class="history-list">
+        @foreach (var historyItem in Model.WorkItem.History)
+        {
+            <li>
+                <strong>@historyItem.EventTypeName</strong>
+                <span>@historyItem.OccurredAtUtc.ToString("u") UTC by @historyItem.ActorIdentifier</span>
+                @if (historyItem.PreviousValue is not null || historyItem.NewValue is not null)
+                {
+                    <span>@historyItem.PreviousValue &rarr; @historyItem.NewValue</span>
+                }
+                @if (historyItem.Comment is not null)
+                {
+                    <span>@historyItem.Comment</span>
+                }
+            </li>
+        }
+    </ol>
+</section>

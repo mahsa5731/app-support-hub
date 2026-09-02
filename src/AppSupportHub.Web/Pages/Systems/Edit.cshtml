@@ -1,0 +1,68 @@
+@page "/Systems/{id:guid}/Edit"
+@model AppSupportHub.Web.Pages.Systems.EditModel
+@{
+    ViewData["Title"] = "Edit system";
+}
+
+<h1>Edit application system</h1>
+<p class="text-muted">Lifecycle changes are handled from the system detail page.</p>
+
+<form method="post" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="mb-3">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="form-control" />
+        <span asp-validation-for="Input.Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Description" class="form-label"></label>
+        <textarea asp-for="Input.Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Input.Description" class="text-danger"></span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Input.Type" class="form-label"></label>
+            <select asp-for="Input.Type" class="form-select">
+                @foreach (string option in Model.Types)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Type" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.Criticality" class="form-label"></label>
+            <select asp-for="Input.Criticality" class="form-select">
+                @foreach (string option in Model.Criticalities)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Criticality" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.BusinessOwner" class="form-label"></label>
+            <input asp-for="Input.BusinessOwner" class="form-control" />
+            <span asp-validation-for="Input.BusinessOwner" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.TechnicalOwner" class="form-label"></label>
+            <input asp-for="Input.TechnicalOwner" class="form-control" />
+            <span asp-validation-for="Input.TechnicalOwner" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.SupportTeam" class="form-label"></label>
+            <input asp-for="Input.SupportTeam" class="form-control" />
+            <span asp-validation-for="Input.SupportTeam" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.VendorName" class="form-label"></label>
+            <input asp-for="Input.VendorName" class="form-control" />
+            <span asp-validation-for="Input.VendorName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-link" asp-page="Details" asp-route-id="@RouteData.Values["id"]">Cancel</a>
+    </div>
+</form>

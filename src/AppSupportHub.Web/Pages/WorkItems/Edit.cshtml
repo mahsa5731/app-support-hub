@@ -1,0 +1,26 @@
+@page "/WorkItems/{id:guid}/Edit"
+@model AppSupportHub.Web.Pages.WorkItems.EditModel
+@{
+    ViewData["Title"] = "Edit work item";
+}
+
+<h1>Edit work-item details</h1>
+<p class="text-muted">Assignment, priority, due date, and status have dedicated actions.</p>
+
+<form method="post" class="form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save details</button>
+        <a class="btn btn-link" asp-page="Details">Cancel</a>
+    </div>
+</form>

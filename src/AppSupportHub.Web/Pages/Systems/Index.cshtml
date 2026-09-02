@@ -1,0 +1,93 @@
+@page "/Systems"
+@model AppSupportHub.Web.Pages.Systems.IndexModel
+@{
+    ViewData["Title"] = "Systems";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Application systems</h1>
+        <p>Find and maintain the bounded application-system inventory.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="Create">Create system</a>
+</div>
+
+<form method="get" class="filter-panel" aria-label="System filters">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label asp-for="Name" class="form-label">Name contains</label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Type" class="form-label"></label>
+            <select asp-for="Type" class="form-select">
+                <option value="">All types</option>
+                @foreach (string option in Model.Types)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Criticality" class="form-label"></label>
+            <select asp-for="Criticality" class="form-select">
+                <option value="">All criticalities</option>
+                @foreach (string option in Model.Criticalities)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="LifecycleStatus" class="form-label">Lifecycle</label>
+            <select asp-for="LifecycleStatus" class="form-select">
+                <option value="">All lifecycle states</option>
+                @foreach (string option in Model.LifecycleStatuses)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-outline-primary">Apply filters</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Systems.Count == 0)
+{
+    <div class="empty-state">
+        <h2>No systems found</h2>
+        <p>Adjust the filters or create the first fictional application system.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <caption class="visually-hidden">Application systems matching the current filters</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Criticality</th>
+                    <th scope="col">Lifecycle</th>
+                    <th scope="col">Support team</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var system in Model.Systems)
+                {
+                    <tr>
+                        <th scope="row"><a asp-page="Details" asp-route-id="@system.Id">@system.Name</a></th>
+                        <td>@system.TypeName</td>
+                        <td><span class="status-badge">@system.CriticalityName</span></td>
+                        <td>@system.LifecycleStatusName</td>
+                        <td>@system.SupportTeam</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

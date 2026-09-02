@@ -10,23 +10,44 @@
     <link rel="stylesheet" href="~/AppSupportHub.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom">
+        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom" aria-label="Primary navigation">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">AppSupportHub</a>
-                <span class="navbar-text">Engineering foundation</span>
+                <ul class="navbar-nav flex-row flex-wrap gap-2 ms-md-auto">
+                    @{
+                        string currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="@(currentPage == "/Index" ? "page" : null)" asp-page="/Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="@(currentPage.StartsWith("/Systems", StringComparison.Ordinal) ? "page" : null)" asp-page="/Systems/Index">Systems</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="@(currentPage.StartsWith("/WorkItems", StringComparison.Ordinal) ? "page" : null)" asp-page="/WorkItems/Index">Work Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/openapi/v1.json">API document</a>
+                    </li>
+                </ul>
             </div>
         </nav>
+        <div class="demo-notice" role="note">
+            <div class="container">Demo mode — authentication is planned for Phase 06</div>
+        </div>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main id="main-content" class="pb-3" tabindex="-1">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 AppSupportHub &middot; Independent portfolio project
+            &copy; 2026 AppSupportHub &middot; Independent portfolio project &middot;
+            Not affiliated with or endorsed by the City of Winnipeg
         </div>
     </footer>
 
