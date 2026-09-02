@@ -7,6 +7,7 @@ using AppSupportHub.Application.Systems.ListApplicationSystems;
 using AppSupportHub.Application.Systems.ReadModels;
 using AppSupportHub.Application.Systems.UpdateApplicationSystem;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppSupportHub.Web.Api.V1.Systems;
@@ -16,6 +17,10 @@ public static class SystemApiEndpoints
     public static RouteGroupBuilder MapSystemsApi(this RouteGroupBuilder api)
     {
         RouteGroupBuilder systems = api.MapGroup("/systems").WithTags("Systems");
+        RouteGroupBuilder writes = systems.MapGroup(string.Empty)
+            .RequireAuthorization(SecurityPolicies.AdministratorOnly)
+            .RequireRateLimiting(SecurityPolicies.UnsafeApiRateLimit)
+            .RequireApiAntiforgery();
 
         systems.MapGet("/", ListAsync)
             .WithName("ListSystemsV1")
@@ -29,14 +34,14 @@ public static class SystemApiEndpoints
             .WithDescription("Returns presentation-neutral system detail by identifier.")
             .Produces<SystemDetailResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound);
-        systems.MapPost("/", CreateAsync)
+        writes.MapPost("/", CreateAsync)
             .WithName("CreateSystemV1")
             .WithSummary("Create an application system")
             .WithDescription("Creates a system through the Application workflow.")
             .Produces<CreatedSystemResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        systems.MapPut("/{id:guid}", UpdateAsync)
+        writes.MapPut("/{id:guid}", UpdateAsync)
             .WithName("UpdateSystemV1")
             .WithSummary("Update application-system metadata")
             .WithDescription("Updates metadata without changing the route-owned identifier.")
@@ -44,7 +49,7 @@ public static class SystemApiEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        systems.MapPost("/{id:guid}/lifecycle", ChangeLifecycleAsync)
+        writes.MapPost("/{id:guid}/lifecycle", ChangeLifecycleAsync)
             .WithName("ChangeSystemLifecycleV1")
             .WithSummary("Change an application-system lifecycle")
             .WithDescription("Applies an existing lifecycle transition, including retirement.")

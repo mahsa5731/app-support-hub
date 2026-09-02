@@ -11,6 +11,7 @@ using AppSupportHub.Application.WorkItems.TransitionWorkItemStatus;
 using AppSupportHub.Application.WorkItems.UnassignWorkItem;
 using AppSupportHub.Application.WorkItems.UpdateWorkItemDetails;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppSupportHub.Web.Api.V1.WorkItems;
@@ -20,6 +21,10 @@ public static class WorkItemApiEndpoints
     public static RouteGroupBuilder MapWorkItemsApi(this RouteGroupBuilder api)
     {
         RouteGroupBuilder workItems = api.MapGroup("/work-items").WithTags("Work items");
+        RouteGroupBuilder writes = workItems.MapGroup(string.Empty)
+            .RequireAuthorization(SecurityPolicies.AnalystOrAdministrator)
+            .RequireRateLimiting(SecurityPolicies.UnsafeApiRateLimit)
+            .RequireApiAntiforgery();
 
         workItems.MapGet("/", ListAsync)
             .WithName("ListWorkItemsV1")
@@ -33,7 +38,7 @@ public static class WorkItemApiEndpoints
             .WithDescription("Returns work-item detail and its chronological immutable history.")
             .Produces<WorkItemDetailResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound);
-        workItems.MapPost("/", CreateAsync)
+        writes.MapPost("/", CreateAsync)
             .WithName("CreateWorkItemV1")
             .WithSummary("Create a work item")
             .WithDescription("Creates a work item for a non-retired application system.")
@@ -41,7 +46,7 @@ public static class WorkItemApiEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapPut("/{id:guid}", UpdateAsync)
+        writes.MapPut("/{id:guid}", UpdateAsync)
             .WithName("UpdateWorkItemV1")
             .WithSummary("Update work-item details")
             .WithDescription("Updates the title and description for the route-owned work item.")
@@ -49,30 +54,30 @@ public static class WorkItemApiEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapPut("/{id:guid}/assignment", AssignAsync)
+        writes.MapPut("/{id:guid}/assignment", AssignAsync)
             .WithName("AssignWorkItemV1")
             .WithSummary("Assign a work item")
-            .WithDescription("Assigns the route-owned work item using the server demo actor.")
+            .WithDescription("Assigns the route-owned work item using the authenticated actor.")
             .Produces<WorkItemMutationResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapDelete("/{id:guid}/assignment", UnassignAsync)
+        writes.MapDelete("/{id:guid}/assignment", UnassignAsync)
             .WithName("UnassignWorkItemV1")
             .WithSummary("Unassign a work item")
-            .WithDescription("Removes the current assignment using the server demo actor.")
+            .WithDescription("Removes the current assignment using the authenticated actor.")
             .Produces<WorkItemMutationResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapPut("/{id:guid}/priority", ChangePriorityAsync)
+        writes.MapPut("/{id:guid}/priority", ChangePriorityAsync)
             .WithName("ChangeWorkItemPriorityV1")
             .WithSummary("Change work-item priority")
-            .WithDescription("Changes priority using the Application workflow and server demo actor.")
+            .WithDescription("Changes priority using the authenticated actor.")
             .Produces<WorkItemMutationResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapPut("/{id:guid}/due-date", ChangeDueDateAsync)
+        writes.MapPut("/{id:guid}/due-date", ChangeDueDateAsync)
             .WithName("ChangeWorkItemDueDateV1")
             .WithSummary("Change work-item due date")
             .WithDescription("Sets or clears an ISO 8601 due date with an explicit offset.")
@@ -80,7 +85,7 @@ public static class WorkItemApiEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
-        workItems.MapPost("/{id:guid}/transitions", TransitionAsync)
+        writes.MapPost("/{id:guid}/transitions", TransitionAsync)
             .WithName("TransitionWorkItemV1")
             .WithSummary("Transition work-item status")
             .WithDescription("Applies a valid status transition and optional resolution data.")
@@ -136,6 +141,7 @@ public static class WorkItemApiEndpoints
         CreateWorkItemRequest request,
         WorkItemInputFactory inputFactory,
         CreateWorkItemHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         if (!UtcInputParser.TryParseIso8601WithOffset(request.DueAt, out DateTimeOffset? dueAt))
@@ -150,7 +156,7 @@ public static class WorkItemApiEndpoints
             request.Description ?? string.Empty,
             request.Priority ?? string.Empty,
             dueAt,
-            DemoActor.Identifier);
+            currentActor.GetRequiredUsername());
         if (!parsed.IsSuccess)
         {
             return ApplicationErrorMapper.ToProblem(parsed.Error!);
@@ -173,6 +179,7 @@ public static class WorkItemApiEndpoints
         Guid id,
         UpdateWorkItemRequest request,
         UpdateWorkItemDetailsHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         ApplicationResult<MutationOutcome> result = await handler.ExecuteAsync(
@@ -180,7 +187,7 @@ public static class WorkItemApiEndpoints
                 id,
                 request.Title ?? string.Empty,
                 request.Description ?? string.Empty,
-                DemoActor.Identifier),
+                currentActor.GetRequiredUsername()),
             cancellationToken);
         return MutationResult(result);
     }
@@ -189,13 +196,14 @@ public static class WorkItemApiEndpoints
         Guid id,
         AssignWorkItemRequest request,
         AssignWorkItemHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         ApplicationResult<MutationOutcome> result = await handler.ExecuteAsync(
             new AssignWorkItemCommand(
                 id,
                 request.AssigneeIdentifier ?? string.Empty,
-                DemoActor.Identifier),
+                currentActor.GetRequiredUsername()),
             cancellationToken);
         return MutationResult(result);
     }
@@ -203,10 +211,11 @@ public static class WorkItemApiEndpoints
     private static async Task<IResult> UnassignAsync(
         Guid id,
         UnassignWorkItemHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         ApplicationResult<MutationOutcome> result = await handler.ExecuteAsync(
-            new UnassignWorkItemCommand(id, DemoActor.Identifier),
+            new UnassignWorkItemCommand(id, currentActor.GetRequiredUsername()),
             cancellationToken);
         return MutationResult(result);
     }
@@ -216,13 +225,14 @@ public static class WorkItemApiEndpoints
         ChangeWorkItemPriorityRequest request,
         WorkItemInputFactory inputFactory,
         ChangeWorkItemPriorityHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         ApplicationResult<ChangeWorkItemPriorityCommand> parsed =
             inputFactory.CreatePriorityCommand(
                 id,
                 request.Priority ?? string.Empty,
-                DemoActor.Identifier);
+                currentActor.GetRequiredUsername());
         if (!parsed.IsSuccess)
         {
             return ApplicationErrorMapper.ToProblem(parsed.Error!);
@@ -235,6 +245,7 @@ public static class WorkItemApiEndpoints
         Guid id,
         ChangeWorkItemDueDateRequest request,
         ChangeWorkItemDueDateHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         if (!UtcInputParser.TryParseIso8601WithOffset(request.DueAt, out DateTimeOffset? dueAt))
@@ -243,7 +254,7 @@ public static class WorkItemApiEndpoints
         }
 
         ApplicationResult<MutationOutcome> result = await handler.ExecuteAsync(
-            new ChangeWorkItemDueDateCommand(id, dueAt, DemoActor.Identifier),
+            new ChangeWorkItemDueDateCommand(id, dueAt, currentActor.GetRequiredUsername()),
             cancellationToken);
         return MutationResult(result);
     }
@@ -253,13 +264,14 @@ public static class WorkItemApiEndpoints
         TransitionWorkItemRequest request,
         WorkItemInputFactory inputFactory,
         TransitionWorkItemStatusHandler handler,
+        CurrentActor currentActor,
         CancellationToken cancellationToken)
     {
         ApplicationResult<TransitionWorkItemStatusCommand> parsed =
             inputFactory.CreateTransitionCommand(
                 id,
                 request.TargetStatus ?? string.Empty,
-                DemoActor.Identifier,
+                currentActor.GetRequiredUsername(),
                 request.Comment,
                 request.ResolutionSummary);
         if (!parsed.IsSuccess)
