@@ -1,9 +1,12 @@
 using AppSupportHub.Application.Abstractions.Persistence;
 using AppSupportHub.Application.LegacyImports;
+using AppSupportHub.Application.Operations;
 using AppSupportHub.Application.Systems.Queries;
 using AppSupportHub.Application.WorkItems.Queries;
+using AppSupportHub.Infrastructure.Health;
 using AppSupportHub.Infrastructure.LegacyImports;
 using AppSupportHub.Infrastructure.Persistence;
+using AppSupportHub.Infrastructure.Persistence.Queries.Operations;
 using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
 using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
 using AppSupportHub.Infrastructure.Persistence.Repositories;
@@ -28,6 +31,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IApplicationSystemQueries, ApplicationSystemQueries>();
         services.AddScoped<IWorkItemQueries, WorkItemQueries>();
         services.AddScoped<ILegacyCsvParser, CsvHelperLegacyCsvParser>();
+        services.AddScoped<IOperationsOverviewQueries, OperationsOverviewQueries>();
+        services.AddScoped<PostgreSqlReadinessHealthCheck>();
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<AppSupportHubDbContext>());
 
