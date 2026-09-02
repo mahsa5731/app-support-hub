@@ -1,0 +1,91 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  background: #f7f9fc;
+  color: #172033;
+  margin-bottom: 72px;
+}
+
+.navbar-brand {
+  color: #173f72;
+  font-weight: 700;
+}
+
+.hero {
+  max-width: 760px;
+  padding: 4rem 0 2.5rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  margin: 0.75rem 0 1rem;
+}
+
+.phase-label {
+  background: #e5effc;
+  border-radius: 999px;
+  color: #173f72;
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.45rem 0.8rem;
+  text-transform: uppercase;
+}
+
+.foundation-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.foundation-grid article {
+  background: #ffffff;
+  border: 1px solid #dce3ed;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.foundation-grid h2 {
+  font-size: 1.15rem;
+}
+
+.disclaimer {
+  border-left: 4px solid #4f75a3;
+  margin: 2rem 0 4rem;
+  padding: 0.75rem 1rem;
+}
+
+.footer {
+  background: #ffffff;
+  bottom: 0;
+  line-height: 60px;
+  position: absolute;
+  white-space: nowrap;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .foundation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-text {
+    display: none;
+  }
+}
