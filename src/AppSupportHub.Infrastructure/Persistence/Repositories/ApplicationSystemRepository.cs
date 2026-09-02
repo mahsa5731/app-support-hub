@@ -24,13 +24,22 @@ public sealed class ApplicationSystemRepository : IApplicationSystemRepository
 
     public Task<bool> NameExistsAsync(
         string normalizedName,
+        Guid? excludedApplicationSystemId,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(normalizedName);
         string trimmedName = normalizedName.Trim();
 
-        return _dbContext.Set<ApplicationSystem>()
-            .AnyAsync(applicationSystem => applicationSystem.Name == trimmedName, cancellationToken);
+        IQueryable<ApplicationSystem> query = _dbContext.Set<ApplicationSystem>();
+
+        if (excludedApplicationSystemId is { } excludedId)
+        {
+            query = query.Where(applicationSystem => applicationSystem.Id != excludedId);
+        }
+
+        return query.AnyAsync(
+            applicationSystem => applicationSystem.Name == trimmedName,
+            cancellationToken);
     }
 
     public async Task AddAsync(

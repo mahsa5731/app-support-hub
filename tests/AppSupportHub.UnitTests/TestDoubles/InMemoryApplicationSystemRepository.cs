@@ -17,6 +17,8 @@ public sealed class InMemoryApplicationSystemRepository : IApplicationSystemRepo
 
     public CancellationToken NameExistsCancellationToken { get; private set; }
 
+    public Guid? ExcludedApplicationSystemId { get; private set; }
+
     public CancellationToken AddCancellationToken { get; private set; }
 
     public IReadOnlyCollection<ApplicationSystem> Items => _applicationSystems.Values;
@@ -31,14 +33,17 @@ public sealed class InMemoryApplicationSystemRepository : IApplicationSystemRepo
 
     public Task<bool> NameExistsAsync(
         string normalizedName,
+        Guid? excludedApplicationSystemId,
         CancellationToken cancellationToken)
     {
         NameExistsCallCount++;
         NameExistsCancellationToken = cancellationToken;
+        ExcludedApplicationSystemId = excludedApplicationSystemId;
         bool exists = _applicationSystems.Values.Any(applicationSystem => string.Equals(
             applicationSystem.Name,
             normalizedName,
-            StringComparison.OrdinalIgnoreCase));
+            StringComparison.OrdinalIgnoreCase)
+            && applicationSystem.Id != excludedApplicationSystemId);
         return Task.FromResult(exists);
     }
 

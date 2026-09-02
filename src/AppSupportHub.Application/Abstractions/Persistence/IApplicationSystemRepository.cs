@@ -6,7 +6,10 @@ public interface IApplicationSystemRepository
 {
     Task<ApplicationSystem?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<bool> NameExistsAsync(string normalizedName, CancellationToken cancellationToken);
+    Task<bool> NameExistsAsync(
+        string normalizedName,
+        Guid? excludedApplicationSystemId,
+        CancellationToken cancellationToken);
 
     Task AddAsync(ApplicationSystem applicationSystem, CancellationToken cancellationToken);
 }

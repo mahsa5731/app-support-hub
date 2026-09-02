@@ -94,12 +94,15 @@ public sealed class ApplicationSystemRepositoryTests(PostgreSqlContainerFixture 
 
         Assert.True(await repository.NameExistsAsync(
             "  synthetic%_portal  ",
+            null,
             CancellationToken.None));
         Assert.False(await repository.NameExistsAsync(
             "SyntheticValuePortal",
+            null,
             CancellationToken.None));
         Assert.False(await repository.NameExistsAsync(
             "Synthetic%",
+            null,
             CancellationToken.None));
     }
 
