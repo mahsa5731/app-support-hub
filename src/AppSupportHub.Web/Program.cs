@@ -5,7 +5,16 @@ using AppSupportHub.Web.Operations;
 using AppSupportHub.Web.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+const string seedFictionalDemoDataArgument = "--seed-fictional-demo-data";
+string[] builderArguments = args
+    .Where(argument => !string.Equals(
+        argument,
+        seedFictionalDemoDataArgument,
+        StringComparison.Ordinal))
+    .ToArray();
+bool seedFictionalDemoData = builderArguments.Length != args.Length;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(builderArguments);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 string? connectionString = builder.Configuration.GetConnectionString("AppSupportHub");
 
@@ -43,6 +52,12 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 app.MapOpenApi();
 app.MapApiV1();
 app.MapRazorPages().WithStaticAssets();
+
+if (seedFictionalDemoData)
+{
+    Environment.ExitCode = await app.SeedFictionalDemoDataAsync() ? 0 : 1;
+    return;
+}
 
 await app.SeedDemoDataAsync();
 await app.RunAsync();
