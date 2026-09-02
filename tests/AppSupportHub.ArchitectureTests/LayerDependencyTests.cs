@@ -21,12 +21,30 @@ public sealed class LayerDependencyTests
     }
 
     [Fact]
+    public void DomainDoesNotReferenceWebOrPersistenceFrameworks()
+    {
+        AssertDoesNotReferenceAssemblyPrefixes(
+            AppSupportHub.Domain.AssemblyReference.Assembly,
+            "Microsoft.AspNetCore",
+            "Microsoft.EntityFrameworkCore");
+    }
+
+    [Fact]
     public void ApplicationDoesNotReferenceInfrastructureOrWeb()
     {
         AssertDoesNotReference(
             AppSupportHub.Application.AssemblyReference.Assembly,
             InfrastructureAssemblyName,
             WebAssemblyName);
+    }
+
+    [Fact]
+    public void ApplicationDoesNotReferenceWebOrPersistenceFrameworks()
+    {
+        AssertDoesNotReferenceAssemblyPrefixes(
+            AppSupportHub.Application.AssemblyReference.Assembly,
+            "Microsoft.AspNetCore",
+            "Microsoft.EntityFrameworkCore");
     }
 
     [Fact]
@@ -118,6 +136,19 @@ public sealed class LayerDependencyTests
             .Select(reference => reference.Name)
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static void AssertDoesNotReferenceAssemblyPrefixes(
+        Assembly assembly,
+        params string[] forbiddenPrefixes)
+    {
+        HashSet<string> referencedAssemblyNames = GetReferencedAssemblyNames(assembly);
+
+        Assert.DoesNotContain(
+            referencedAssemblyNames,
+            reference => forbiddenPrefixes.Any(prefix => reference.StartsWith(
+                prefix,
+                StringComparison.Ordinal)));
     }
 
     private static bool IsProductionAssembly(string assemblyName)
