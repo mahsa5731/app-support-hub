@@ -299,3 +299,41 @@ real antiforgery HTTPS requests supplied the interaction evidence. The host,
 container, and temporary files were removed. Known limits remain demo identity,
 preview-only legacy integration, and no authentication, authorization, API
 expansion, upload persistence, import, or production-readiness claim.
+
+## Phase 06
+
+Codex implemented the lean Web-owned security adapter: optional externally
+configured Analyst and Administrator accounts, secure cookie login/logout,
+named write policies, authenticated mutation actors, API antiforgery, fixed-
+window limits, security headers, public read-only rendering, and concise tests
+and documentation. The specification fixed the identity model, role matrix,
+public-demo boundary, budgets, and exclusions; no package, schema, migration,
+persistent identity, or later-phase operations work was added.
+
+Measured growth is 6 production/view files and 576 nonblank production/view
+lines, plus 1 test file, 6 test methods, and 350 nonblank test lines.
+Documentation growth remains below the 150-line cap.
+
+Validation performed included:
+
+```text
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build --filter "Phase=06|FullyQualifiedName~Phase06"
+dotnet test AppSupportHub.sln --no-build
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet ef migrations has-pending-model-changes --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj --no-build
+git diff --check
+```
+
+The build passed with zero warnings/errors; 6 focused security tests and the
+final 228 unit, 59 integration, and 16 architecture tests passed (303 total,
+zero skips). The first full gate exposed one stale presentation phrase in an
+existing test; correcting that assertion required no production or test-line
+growth, and the repeated gate passed. Format and model checks passed. One
+ephemeral PostgreSQL 17/HTTPS smoke verified public reads, protected writes,
+Analyst actor persistence and System denial, Administrator System mutation,
+cookie API antiforgery, headers, login limiting, and disabled-login read-only
+startup; all temporary processes, container, credentials, and files were
+removed. Identity remains a configuration-backed portfolio adapter, and audit
+evidence remains intentionally partial; no line-by-line human review is claimed.

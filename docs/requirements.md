@@ -2,10 +2,9 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 05 adds a
-tested ChangeRequest assessment and a preview-only CSV boundary to the Phase 04
-Razor/API workflows. Authentication, authorization, later features, and
-operations remain planned.
+These requirements define the intended portfolio product. Phase 06 keeps the
+catalog publicly readable and protects mutations with optional configured
+portfolio accounts, roles, authenticated actors, and request controls.
 
 ## Functional requirements
 
@@ -62,9 +61,9 @@ operations remain planned.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Implementation traceability through Phase 05
+## Implementation traceability through Phase 06
 
-| Requirement | Implemented evidence through Phase 05 | Remaining delivery |
+| Requirement | Implemented evidence through Phase 06 | Remaining delivery |
 | --- | --- | --- |
 | FR-SYS-001 | Razor and API create, get, bounded search/filter, update, and confirmed lifecycle/retirement workflows persist through Application handlers | Authorization |
 | FR-SYS-002 | Commercial/custom pages and DTOs present ownership, support, vendor, criticality, lifecycle, retirement, and labelled UTC metadata | Authorization |
@@ -72,18 +71,19 @@ operations remain planned.
 | FR-WRK-002 | Razor named actions and API endpoints provide assignment, unassignment, priority, and bounded filters | Authorization and authenticated identity |
 | FR-WRK-003 | Razor/API status actions delegate the exact type-aware transition matrix to Domain/Application | Authorization |
 | FR-WRK-004 | Razor/API due-date and detail workflows present overdue text and resolution data with explicit UTC handling | Authorization |
-| FR-WRK-005 | Detail pages/API project chronological immutable history, including stable equal-timestamp order; mutations use a disclosed synthetic server actor | Authenticated actor identity and security audit policy |
+| FR-WRK-005 | Detail pages/API project chronological immutable history; user mutations persist the authenticated configured username | Persistent enterprise identity and centralized audit |
 | FR-CHG-001 | One persisted structured assessment per ChangeRequest, with bounded narratives, risk, plans, timestamps, idempotent save, and Razor PRG workflow | Authorization and authenticated assessor identity |
 | FR-IMP-001 | Strict UTF-8 `.csv` upload previews up to 256 KiB and 100 data rows; no upload or record is stored | Partially demonstrated: authorization is absent and actual import is intentionally not planned |
 | FR-IMP-002 | Exact header, shape, vocabulary, field, vendor, size, encoding, and row-limit validation produces safe row/file feedback without database writes | Partially demonstrated by one bounded fictional format |
 | FR-IMP-003 | Case-insensitive in-file LegacyId/name and PostgreSQL name duplicates are labelled for review | Partially demonstrated: no disposition or import workflow is planned |
-| FR-API-001 | Fourteen path-versioned Minimal API routes, Web DTOs, RFC 7807 errors, and `/openapi/v1.json` are implemented and HTTP tested | Authentication, authorization, and later feature APIs |
+| FR-SEC-001 | Public reads plus Administrator-only System writes and Analyst/Administrator WorkItem, assessment, and CSV writes are enforced server-side | Portfolio roles only; no enterprise identity lifecycle |
+| FR-API-001 | Fourteen business routes plus one supporting antiforgery-token route, OpenAPI, cookie authorization, 401/403/429, and CSRF validation are HTTP tested | Later feature APIs |
+| FR-AUD-001 | Structured login/logout events and authenticated actors in existing WorkItem history/assessment fields provide bounded evidence | Partial: System audit and tamper-resistant centralized logs are absent |
 | FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
 
-Phase 05 provides user-accessible demo workflows but does not satisfy any
-“authorized users” condition. Actual legacy import is intentionally not
-implemented or planned; reporting, role-based access, authenticated identity,
-and security audit requirements remain later work.
+Phase 06 satisfies the portfolio role matrix only when externally configured.
+With login disabled it intentionally remains public read-only. Actual import,
+persistent identity, full business audit, and production security remain absent.
 
 ## Non-functional requirements
 

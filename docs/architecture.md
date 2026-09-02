@@ -247,5 +247,22 @@ indexed name-existence query per unique valid name is deliberately retained as
 a clear bounded tradeoff. Web renders results only; there is no import API,
 upload persistence, disposition workflow, or audit subsystem.
 
-Authentication, authorization, reporting, operational readiness, security
+Persistent identity, reporting, operational readiness, production security
 hardening, containerization, CI/CD, and deployment remain later-phase work.
+
+## Phase 06 configured security adapter
+
+Web builds two optional configuration-backed accounts in memory and hashes
+their externally supplied passwords once with the shared-framework hasher.
+Secure, strict, non-sliding 30-minute cookies carry only username and role.
+Named policies keep all reads public, reserve System writes for Administrator,
+and allow Analyst or Administrator for WorkItem, assessment, and CSV writes.
+The Web-owned current actor supplies authenticated usernames to existing use
+cases; the Development seeder alone retains the synthetic demo actor.
+
+Unsafe cookie API routes require a supporting antiforgery token/header and a
+30-per-minute user partition; login attempts are limited to five per minute per
+remote client. Security headers deny framing/objects/external origins without
+breaking local static assets. Structured authentication logs, existing history,
+and assessment actor fields are partial audit evidence—not persistent identity,
+lockout, System audit, or centralized tamper-resistant logging.

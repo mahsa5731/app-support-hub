@@ -16,6 +16,7 @@ strings and are matched case-insensitively.
 | POST | `/api/v1/systems/{id}/lifecycle` | Apply a lifecycle transition |
 | GET | `/api/v1/work-items` | Bounded work-item list with system, title, type, priority, status, assignee, overdue, and limit filters |
 | GET | `/api/v1/work-items/{id}` | Work-item detail and immutable history |
+| GET | `/api/v1/security/antiforgery` | Authenticated request token/header for unsafe API calls |
 | POST | `/api/v1/work-items` | Create a work item |
 | PUT | `/api/v1/work-items/{id}` | Update title and description |
 | PUT | `/api/v1/work-items/{id}/assignment` | Assign a work item |
@@ -99,10 +100,12 @@ Application error code in `code`:
 Responses do not include SQL, connection data, stack traces, aggregates, or EF
 entities.
 
-## Demo identity and scope
+## Authentication, roles, and antiforgery
 
-Phase 04 has no authentication or authorization. Every material mutation uses
-the server-owned synthetic actor `demo.user@appsupporthub.local`; this does not
-represent an authenticated user. Client actor fields are not part of the API
-contract and cannot select the persisted history actor. Do not expose this demo
-API as a production service.
+GET business routes remain public. System writes require Administrator;
+WorkItem writes allow Analyst or Administrator. After cookie login, GET
+`/api/v1/security/antiforgery`, retain its cookie, and send the returned token in
+the returned header on every POST/PUT/DELETE. Missing/invalid tokens return 400;
+authentication failures return 401, insufficient roles 403, and rate limits
+429. Unsafe calls are limited to 30 per minute per authenticated username.
+Client actor fields are ignored; WorkItem history uses the authenticated name.

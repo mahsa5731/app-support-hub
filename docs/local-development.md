@@ -41,7 +41,7 @@ dotnet ef database update \
 Wait for PostgreSQL readiness before migration if Docker has just downloaded or
 started the image. Infrastructure is the EF tooling startup project because it
 owns the design-time factory and Design package; Web intentionally does not.
-The only repository migration is applied explicitly by the developer.
+Both repository migrations are applied explicitly by the developer.
 
 ## Run
 
@@ -61,9 +61,23 @@ export AppSupportHub__SeedDemoData=true
 dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj
 ```
 
+The site is public read-only when interactive login is false. For local mutation
+testing, choose fictional usernames and enter both passwords without echoing:
+
+```bash
+export AppSupportHub__Security__EnableInteractiveLogin=true
+export AppSupportHub__Security__Analyst__Username='<fictional-analyst>'
+export AppSupportHub__Security__Administrator__Username='<fictional-administrator>'
+read -r -s -p "Analyst password: " AppSupportHub__Security__Analyst__Password; echo
+read -r -s -p "Administrator password: " AppSupportHub__Security__Administrator__Password; echo
+export AppSupportHub__Security__Analyst__Password AppSupportHub__Security__Administrator__Password
+```
+
+Both passwords must be at least 12 characters. Login at `/Account/Login`.
+
 Open the HTTPS URL printed by ASP.NET Core. Useful paths are `/`, `/Systems`,
 `/WorkItems`, `/api/v1/systems`, `/openapi/v1.json`, and `/health`. The demo
-actor is synthetic; no request is authenticated.
+actor is synthetic only for seeding; interactive mutations use the configured username.
 
 ## Validate
 
@@ -89,6 +103,9 @@ clear shell configuration:
 docker stop appsupporthub-postgres
 unset ConnectionStrings__AppSupportHub
 unset AppSupportHub__SeedDemoData
+unset AppSupportHub__Security__EnableInteractiveLogin
+unset AppSupportHub__Security__Analyst__Username AppSupportHub__Security__Analyst__Password
+unset AppSupportHub__Security__Administrator__Username AppSupportHub__Security__Administrator__Password
 unset ASPNETCORE_ENVIRONMENT
 unset ASH_DB_PASSWORD
 ```

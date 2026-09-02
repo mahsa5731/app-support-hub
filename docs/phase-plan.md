@@ -58,12 +58,12 @@ and the AI-assistance record when its scope changes.
   size-limit, duplicate, preview, and manual journey tests.
 - **Dependency:** Phases 1–4.
 
-## 6. Authentication, authorization, and cybersecurity — Planned
+## 6. Lean security with public live-demo access — Completed
 
-- **Objective:** Protect application and API operations with layered controls.
-- **Main deliverables:** Identity, role model, server-side authorization,
-  antiforgery review, rate limiting, secure headers/configuration, and audit
-  policy.
+- **Objective:** Keep public read journeys visible while protecting mutations.
+- **Main deliverables:** Optional configured accounts, cookie authentication,
+  Analyst/Administrator policies, authenticated actors, API/page antiforgery,
+  bounded rate limits, secure headers, and partial audit evidence.
 - **Required tests:** Authentication, role-matrix, access-denial, rate-limit,
   input-security, secret-safety, and audit tests.
 - **Dependency:** Phases 1–5.
@@ -84,8 +84,8 @@ and the AI-assistance record when its scope changes.
 - **Objective:** Automate repeatable validation and deployment of the completed
   portfolio application.
 - **Main deliverables:** CI workflow, container build, environment
-  configuration, automated deployment, release smoke test, and finalized user,
-  developer, and operations documentation.
+  configuration, a publicly accessible read-only demo URL, automated deployment,
+  release smoke test, and finalized documentation.
 - **Required tests:** Clean CI build, container health, migration/deployment,
   rollback, environment, and deployed smoke tests.
 - **Dependency:** Phases 1–7.

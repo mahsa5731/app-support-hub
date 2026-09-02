@@ -11,7 +11,7 @@ This script is a focused acceptance aid, not security or WCAG certification.
 3. Tab through Home, Systems, Work Items, and API document; verify visible focus
    and an obvious current-page style.
 4. Resize to a narrow viewport and confirm content and navigation remain usable.
-5. Verify the Phase 04, demo-mode, and independent/non-affiliation statements.
+5. Verify the Phase 06, public-demo, and independent/non-affiliation statements.
 
 ## Systems journey
 
@@ -37,12 +37,12 @@ This script is a focused acceptance aid, not security or WCAG certification.
    transitions. Resolve only through a valid type-specific path and supply a
    resolution summary.
 5. Verify every success uses a redirect, detail shows system/resolution data,
-   and immutable history remains chronological with the disclosed demo actor.
+   and immutable history remains chronological with the authenticated actor.
 6. Confirm no delete or history-edit control exists.
 
 ## REST API
 
-1. Open `/openapi/v1.json` and confirm the `v1` document describes all 14 routes
+1. Open `/openapi/v1.json` and confirm the `v1` document describes all 15 routes
    listed in [API v1](api-v1.md).
 2. Use `curl` or another local client to create/get/list/update one fictional
    system and work item. Confirm create returns 201 and a detail Location.
@@ -51,14 +51,14 @@ This script is a focused acceptance aid, not security or WCAG certification.
 4. Request a random ID and verify 404 with a stable code; attempt an invalid
    transition and verify 409.
 5. Add an `actorIdentifier` property to a mutation body. Verify history still
-   records only `demo.user@appsupporthub.local`.
+   records only the authenticated username.
 6. Verify `/health` returns 200 and contains no database-readiness claim.
 
 ## Phase 05 change assessment
 
 1. Open a fictional ChangeRequest detail, follow “Change assessment”, complete
    all narratives and risk, save, and verify PRG reloads the same canonical URL
-   with trimmed values, UTC metadata, and the disclosed demo actor.
+   with trimmed values, UTC metadata, and the authenticated actor.
 2. Save identical values again, then edit one value; verify the form remains
    usable and no assessment link appears on Incident or Enhancement details.
 
@@ -69,6 +69,19 @@ This script is a focused acceptance aid, not security or WCAG certification.
 2. Verify the page states that it never imports or stores records. Try a wrong
    header and an oversized/non-CSV file and confirm safe feedback; then verify
    the Systems count did not change and no import/confirmation control exists.
+
+## Phase 06 public and role matrix
+
+1. With interactive login disabled, verify public lists/details, assessment
+   display, CSV instructions/sample, GET API, OpenAPI, and health work while all
+   mutation controls/routes are unavailable or challenge.
+2. Enable externally configured fictional accounts. Verify generic login
+   failure, secure cookie navigation identity, POST logout, and the sixth failed
+   login attempt returning 429.
+3. As Analyst, change a WorkItem/save an assessment/preview CSV and confirm the
+   authenticated username persists; verify System administration is denied.
+4. As Administrator, perform a System mutation. For unsafe API calls, verify a
+   cookie alone fails and the supporting antiforgery header succeeds.
 
 Record browser, date, pass/fail, and any observation outside the repository.
 Do not enter a real person, organization, credential, customer, or production

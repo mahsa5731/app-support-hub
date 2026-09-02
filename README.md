@@ -6,13 +6,13 @@ technology team. The eventual product will bring application cataloguing,
 support work, change assessment, legacy preview boundaries, and operational
 reporting into one maintainable system.
 
-## Status: Phase 05 — Change assessment and legacy CSV preview
+## Status: Phase 06 — Lean security and public read-only demo
 
 Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
 Application workflows over PostgreSQL. The UI includes bounded filters,
 validated forms, lifecycle and work-item actions, UTC dates, and immutable
-history. Phase 05 adds one structured assessment per ChangeRequest and a
-strictly preview-only legacy-system CSV boundary. The API remains unchanged.
+history. Phase 06 keeps every read journey public while requiring configured
+Analyst or Administrator cookie authentication for mutations.
 
 AppSupportHub is an independent portfolio project. It is **not affiliated with,
 endorsed by, or built for the City of Winnipeg**. It does not use City data or
@@ -26,11 +26,12 @@ connect to City systems.
 - CsvHelper 33.1.0 for the Infrastructure CSV adapter
 - Testcontainers for isolated PostgreSQL integration tests
 - xUnit
+- ASP.NET Core cookie authentication, authorization, antiforgery, and rate limiting
 - Built-in .NET analyzers, OpenAPI generation, and health checks
 
-Authentication, authorization, real legacy import, reporting, operational
+Persistent enterprise identity, real legacy import, reporting, operational
 readiness, deployment automation, and a frontend build pipeline are not
-included in Phase 05.
+included in Phase 06.
 
 ## Solution structure
 
@@ -99,11 +100,20 @@ The local host exposes:
 - `/LegacyImports` — preview-only legacy CSV upload
 - `/api/v1/systems` and `/api/v1/work-items` — REST API v1
 - `/openapi/v1.json` — OpenAPI document
+- `/Account/Login` — optional configured-account login
+- `/api/v1/security/antiforgery` — authenticated unsafe-API token support
 - `/health` — the built-in liveness health response
 
 CSV previews accept strict UTF-8 `.csv` files no larger than 256 KiB and 100
 data rows, with the exact header shown in the downloadable fictional sample.
 Previewing never stores the upload or changes application-system records.
+
+Interactive access is disabled by default. To enable it, externally configure
+`AppSupportHub__Security__EnableInteractiveLogin=true` plus `Username` and
+`Password` values beneath both `Analyst` and `Administrator`; passwords must be
+at least 12 characters and never belong in tracked files. Administrators manage
+Systems; both roles manage WorkItems, assessments, and CSV previews. The public
+live URL is a Phase 08 deliverable, not part of this phase.
 
 The HTTPS launch profile listens on `https://localhost:7130` and redirects the
 corresponding local HTTP endpoint to HTTPS. Local port settings can be changed
@@ -128,10 +138,10 @@ through standard ASP.NET Core launch configuration.
 
 ## Current limitations
 
-Phase 05 is an unauthenticated demonstration. All mutations use the disclosed
-server-owned demo actor; it is not an authenticated identity. The project has
-no authorization, actual legacy import, reporting, readiness check, rate
-limiting, security hardening, Dockerfile or Compose configuration, CI/CD,
+Phase 06 uses optional configuration-backed portfolio accounts, not a persistent
+enterprise identity provider. The project has no actual legacy import,
+tamper-resistant centralized audit, reporting, readiness check, persistent lockout, rate
+limiting across multiple instances, production security hardening, Dockerfile or Compose configuration, CI/CD,
 deployment automation, or production operations configuration. The CSV
 boundary only previews validation and duplicates. The basic accessibility
 checks are not a WCAG certification. This is not a production-ready service.
