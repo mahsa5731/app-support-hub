@@ -82,13 +82,14 @@ General reporting/export, configurable dashboards, and list pagination are
 intentionally removed from this portfolio scope; existing bounds suit the
 fictional dataset.
 
-## 8. CI/CD, Docker, deployment, and final documentation — Next
+## 8. CI/CD, Docker, deployment, and final documentation — In progress
 
-- **Objective:** Automate repeatable validation and deployment of the completed
-  portfolio application.
-- **Main deliverables:** CI workflow, container build, environment
-  configuration, a publicly accessible read-only demo URL, automated deployment,
-  release smoke test, and finalized documentation.
+- **Phase 08A — Completed:** A cache-aware multi-stage, non-root .NET 10
+  container; read-only GitHub Actions validation; local container smoke evidence;
+  and the Render/Neon environment, migration, health, and secret handoff.
+- **Phase 08B — Next:** Provider resources, explicit Neon migration and narrow
+  fictional Production seed, automated Render deployment, public read-only demo
+  URL, release/rollback evidence, and final documentation.
 - **Required tests:** Clean CI build, container health, migration/deployment,
   rollback, environment, and deployed smoke tests.
 - **Dependency:** Phases 1–7.

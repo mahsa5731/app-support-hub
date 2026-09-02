@@ -100,6 +100,20 @@ git diff --check
 Integration tests create and dispose one isolated PostgreSQL 17 Testcontainer;
 they do not use the local database above.
 
+## Build the runtime container
+
+Build the same `linux/amd64` image shape intended for deployment:
+
+```bash
+docker build --platform linux/amd64 -t appsupporthub:phase08a .
+```
+
+The image contains only the .NET 10 runtime and published Web output, listens on
+HTTP port `8080`, and runs as a non-root user. Run it only with an explicitly
+migrated reachable PostgreSQL database and the Production settings documented in
+the [deployment handoff](deployment.md); the container never migrates or seeds
+implicitly.
+
 ## Clean shutdown
 
 Stop the Web host with Ctrl+C, then remove the disposable local database and

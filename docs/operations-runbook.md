@@ -1,7 +1,8 @@
 # Operations runbook
 
 This is a lean support guide for the fictional AppSupportHub portfolio demo,
-not a production SLA, monitoring plan, or provider-specific procedure.
+not a production SLA or monitoring plan. The provider contract is in the
+[deployment handoff](deployment.md).
 
 ## Startup requirements
 
@@ -41,14 +42,14 @@ Escalate repeated readiness or migration failures with UTC time, correlation ID,
 health status, deployed revision, and sanitized error category. Keep secrets,
 hostnames, SQL text, customer data, and generated dumps out of tickets.
 
-## Phase 08 handoff checklist
+## Phase 08B handoff checklist
 
 - Inspect GitHub repository state and the revision selected for deployment.
-- Inspect the chosen hosting provider; do not select one in Phase 07.
-- Inspect managed PostgreSQL provisioning and network access.
-- Inspect required environment variables and secret storage.
-- Inspect the explicit migration command and responsibility.
-- Inspect the Development-only fictional seed flag.
+- Create the Render Web Service from the root `Dockerfile` and Neon database.
+- Store the connection string and other secrets only in provider settings.
+- Apply both migrations from a trusted local environment before Web starts.
+- Keep login and the Development-only seed disabled; use only the separately
+  approved narrow fictional Production seed.
 - Inspect optional Analyst/Administrator login configuration.
 - Inspect liveness/readiness public health URLs.
 - Inspect provider-specific rollback steps before release.
