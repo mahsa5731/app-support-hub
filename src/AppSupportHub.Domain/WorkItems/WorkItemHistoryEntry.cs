@@ -6,7 +6,7 @@ public sealed class WorkItemHistoryEntry
         Guid workItemId,
         WorkItemHistoryEventType eventType,
         string actorIdentifier,
-        DateTimeOffset occurredAt,
+        DateTimeOffset occurredAtUtc,
         string? previousValue,
         string? newValue,
         string? comment)
@@ -31,7 +31,7 @@ public sealed class WorkItemHistoryEntry
             actorIdentifier,
             WorkItem.ActorIdentifierMaxLength,
             nameof(actorIdentifier));
-        OccurredAtUtc = occurredAt.ToUniversalTime();
+        OccurredAtUtc = occurredAtUtc.ToUniversalTime();
         PreviousValue = NormalizeOptional(
             previousValue,
             WorkItem.HistoryValueMaxLength,
