@@ -1,5 +1,9 @@
 using AppSupportHub.Application.Abstractions.Persistence;
+using AppSupportHub.Application.Systems.Queries;
+using AppSupportHub.Application.WorkItems.Queries;
 using AppSupportHub.Infrastructure.Persistence;
+using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
+using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
 using AppSupportHub.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +22,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<AppSupportHubDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IApplicationSystemRepository, ApplicationSystemRepository>();
         services.AddScoped<IWorkItemRepository, WorkItemRepository>();
+        services.AddScoped<IApplicationSystemQueries, ApplicationSystemQueries>();
+        services.AddScoped<IWorkItemQueries, WorkItemQueries>();
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<AppSupportHubDbContext>());
 

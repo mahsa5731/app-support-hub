@@ -1,10 +1,14 @@
 using AppSupportHub.Application.Abstractions.Persistence;
 using AppSupportHub.Application.Abstractions.Results;
 using AppSupportHub.Application.Systems.CreateApplicationSystem;
+using AppSupportHub.Application.Systems.Queries;
+using AppSupportHub.Application.WorkItems.Queries;
 using AppSupportHub.Domain.Systems;
 using AppSupportHub.Domain.WorkItems;
 using AppSupportHub.Infrastructure;
 using AppSupportHub.Infrastructure.Persistence;
+using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
+using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
 using AppSupportHub.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,10 +34,16 @@ public sealed class DependencyRegistrationTests(PostgreSqlContainerFixture fixtu
             .GetRequiredService<IApplicationSystemRepository>();
         IWorkItemRepository workItemRepository = scope.ServiceProvider
             .GetRequiredService<IWorkItemRepository>();
+        IApplicationSystemQueries systemQueries = scope.ServiceProvider
+            .GetRequiredService<IApplicationSystemQueries>();
+        IWorkItemQueries workItemQueries = scope.ServiceProvider
+            .GetRequiredService<IWorkItemQueries>();
         ApplicationSystem applicationSystem = PostgreSqlTestData.CreateApplicationSystem();
         WorkItem workItem = PostgreSqlTestData.CreateWorkItem(applicationSystem.Id);
 
         Assert.Same(dbContext, unitOfWork);
+        Assert.IsType<ApplicationSystemQueries>(systemQueries);
+        Assert.IsType<WorkItemQueries>(workItemQueries);
         await systemRepository.AddAsync(applicationSystem, CancellationToken.None);
         await workItemRepository.AddAsync(workItem, CancellationToken.None);
         Assert.Equal(EntityState.Added, dbContext.Entry(applicationSystem).State);
@@ -95,5 +105,16 @@ public sealed class DependencyRegistrationTests(PostgreSqlContainerFixture fixtu
         Assert.Equal(
             [typeof(IWorkItemRepository)],
             typeof(WorkItemRepository).GetInterfaces());
+    }
+
+    [Fact]
+    public void QueryImplementationsImplementOnlyTheirSpecificApplicationContracts()
+    {
+        Assert.Equal(
+            [typeof(IApplicationSystemQueries)],
+            typeof(ApplicationSystemQueries).GetInterfaces());
+        Assert.Equal(
+            [typeof(IWorkItemQueries)],
+            typeof(WorkItemQueries).GetInterfaces());
     }
 }

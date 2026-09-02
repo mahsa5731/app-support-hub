@@ -1,5 +1,11 @@
 using System.Reflection;
 using System.Xml.Linq;
+using AppSupportHub.Application.Systems.Queries;
+using AppSupportHub.Application.Systems.ReadModels;
+using AppSupportHub.Application.WorkItems.Queries;
+using AppSupportHub.Application.WorkItems.ReadModels;
+using AppSupportHub.Infrastructure.Persistence.Queries.Systems;
+using AppSupportHub.Infrastructure.Persistence.Queries.WorkItems;
 
 namespace AppSupportHub.ArchitectureTests;
 
@@ -49,6 +55,51 @@ public sealed class LayerDependencyTests
             "Microsoft.AspNetCore",
             "Microsoft.EntityFrameworkCore",
             "Npgsql");
+    }
+
+    [Fact]
+    public void ReadContractsAndModelsAreOwnedByApplicationWithoutOuterLayerDependencies()
+    {
+        Type[] readBoundaryTypes =
+        [
+            typeof(IApplicationSystemQueries),
+            typeof(ApplicationSystemQueryFilter),
+            typeof(ApplicationSystemSummary),
+            typeof(ApplicationSystemDetail),
+            typeof(IWorkItemQueries),
+            typeof(WorkItemQueryFilter),
+            typeof(WorkItemSummary),
+            typeof(WorkItemDetail),
+            typeof(WorkItemHistoryItem),
+        ];
+
+        Assert.All(
+            readBoundaryTypes,
+            type => Assert.Equal(
+                AppSupportHub.Application.AssemblyReference.Assembly,
+                type.Assembly));
+        AssertDoesNotReferenceAssemblyPrefixes(
+            readBoundaryTypes[0].Assembly,
+            "Microsoft.AspNetCore",
+            "Microsoft.EntityFrameworkCore",
+            "Npgsql");
+    }
+
+    [Fact]
+    public void InfrastructureOwnsSpecificQueryImplementations()
+    {
+        Assert.Equal(
+            AppSupportHub.Infrastructure.AssemblyReference.Assembly,
+            typeof(ApplicationSystemQueries).Assembly);
+        Assert.Equal(
+            [typeof(IApplicationSystemQueries)],
+            typeof(ApplicationSystemQueries).GetInterfaces());
+        Assert.Equal(
+            AppSupportHub.Infrastructure.AssemblyReference.Assembly,
+            typeof(WorkItemQueries).Assembly);
+        Assert.Equal(
+            [typeof(IWorkItemQueries)],
+            typeof(WorkItemQueries).GetInterfaces());
     }
 
     [Fact]
