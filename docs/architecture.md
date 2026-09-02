@@ -20,8 +20,8 @@ The four production layers have these responsibilities:
   AppSupportHub project dependency.
 - **Application:** Use cases, orchestration, validation boundaries, and ports.
   It depends only on Domain.
-- **Infrastructure:** Later persistence and external adapter implementations.
-  It depends on Application and Domain.
+- **Infrastructure:** EF Core PostgreSQL persistence and later external adapter
+  implementations. It depends on Application and Domain.
 - **Web:** Razor Pages, HTTP endpoints, composition, and presentation. It
   depends on Application and Infrastructure and never directly on Domain.
 
@@ -92,6 +92,39 @@ codes introduced in this phase include
 `work_items.assignment_forbidden`; status matrix failures use the specified
 `work_items.invalid_transition` code.
 
+## PostgreSQL persistence
+
+Phase 03 implements the two specific repository ports with one scoped
+`AppSupportHubDbContext`, which also implements `IUnitOfWork`. A handler and its
+repositories therefore share one change tracker and one `SaveChangesAsync`
+boundary. Infrastructure uses Npgsql and separate Fluent API configurations;
+Domain and Application contain no EF Core attributes or package references.
+
+The relational model contains `application_systems`, `work_items`, and
+`work_item_history_entries`. Domain-created GUIDs are never database-generated,
+enums are readable constrained strings, and UTC instants use PostgreSQL
+`timestamp with time zone`. Application-system names use `citext` for exact,
+case-insensitive uniqueness. Named checks enforce trimmed text, enum values,
+vendor, retirement, resolution, due-date, timestamp, and positive-sequence
+rules. WorkItems restrict physical deletion of their system; history rows use a
+database cascade only beneath their owning WorkItem.
+
+Both aggregate tables map PostgreSQL `xmin` as an EF Core row version for
+optimistic concurrency. WorkItem history uses its existing `_history` field and
+an Infrastructure-only shadow `Sequence`; new rows receive the next value in
+Domain append order, including when timestamps match or an aggregate is
+reloaded. The DbContext rejects tracked history modifications and deletions
+before SQL is issued.
+
+`InitialPostgreSqlPersistence` is the sole migration. Production startup does
+not call `EnsureCreated`, apply migrations, execute seeds, or require a database
+for `/` and `/health`. The standard future connection key is
+`ConnectionStrings:AppSupportHub`, overridden by
+`ConnectionStrings__AppSupportHub`. Integration tests use one isolated
+`postgres:17-alpine` Testcontainer, apply migrations, arrange synthetic records,
+and truncate between tests. No production data is seeded; Phase 04 may add an
+explicit, idempotent, opt-in synthetic demo seeder through Application handlers.
+
 ## Feature organization
 
 Later phases organize work by plural feature or module name rather than by
@@ -138,11 +171,11 @@ simple. If measured scale or organizational ownership later justifies service
 extraction, explicit module contracts provide seams. Microservices are not a
 default destination and are unnecessary for the current portfolio scope.
 
-## Phase 02 boundary
+## Phase 03 boundary
 
-The implemented architecture now contains Systems and WorkItems aggregates,
-specific persistence ports, a dependency-free result model, and five explicit
-Application handlers in addition to the Phase 01 foundation. Infrastructure has
-no repository implementation, and Web has no business pages or endpoints.
-There is no database, authentication, change assessment, legacy import,
-reporting, or deployment implementation.
+The implemented architecture now includes the Systems and WorkItems core,
+specific PostgreSQL repositories, explicit schema constraints, migrations,
+transactions, stable history, and optimistic concurrency. Web still has no
+business pages or endpoints and does not compose a runtime database connection.
+Authentication, change assessment, legacy import, reporting, operational
+readiness, containerization, CI/CD, and deployment remain later-phase work.

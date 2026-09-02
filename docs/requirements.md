@@ -2,9 +2,10 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 02 implements
-the Systems and WorkItems Domain/Application core. Persistence, user-facing
-workflows, security, integrations, and operations remain later-phase work.
+These requirements define the intended portfolio product. Phase 03 adds tested
+PostgreSQL persistence behind the Phase 02 Systems and WorkItems core.
+User-facing workflows, security, integrations, and operations remain
+later-phase work.
 
 ## Functional requirements
 
@@ -62,21 +63,21 @@ workflows, security, integrations, and operations remain later-phase work.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Phase 02 implementation traceability
+## Phase 03 implementation traceability
 
-| Requirement | Phase 02 Domain/Application evidence | Remaining delivery |
+| Requirement | Implemented evidence through Phase 03 | Remaining delivery |
 | --- | --- | --- |
-| FR-SYS-001 | ApplicationSystem creation, metadata, lifecycle, and retirement rules; create and retire use cases | Persistence, retrieval/search, authorization, and user/API workflows |
-| FR-SYS-002 | Commercial/custom classification, ownership, support team, criticality, lifecycle, and commercial-vendor invariant | Persistence and user-facing maintenance |
-| FR-WRK-001 | Incident, enhancement, and change-request types plus validated creation use case | Persistence and user/API creation workflow |
-| FR-WRK-002 | Assignment, priority, and due-date Domain behavior; assignment use case | Persistence, priority/due-date use cases, authorization, and UI/API |
-| FR-WRK-003 | Exact type-aware status matrix, `CanTransitionTo`, and transition use case | Persistence, authorization, and user/API workflow |
-| FR-WRK-004 | Due-date validation, overdue calculation, resolution, reopen, and close behavior | Persistence and user-facing scheduling/resolution workflow |
-| FR-WRK-005 | WorkItem-controlled immutable history with structured event types and values | Durable storage, actor identity, and history presentation |
+| FR-SYS-001 | ApplicationSystem rules and use cases plus PostgreSQL repository persistence, case-insensitive unique names, and retirement round-trips | Retrieval/search use cases, authorization, and user/API workflows |
+| FR-SYS-002 | Commercial/custom metadata with database enum, vendor, retirement, timestamp, and length constraints | User-facing maintenance |
+| FR-WRK-001 | Explicit work-item types, creation use case, relational storage, and required system foreign key | User/API creation workflow |
+| FR-WRK-002 | Assignment, priority, due-date behavior, persistence, and indexed columns | Priority/due-date use cases, authorization, and UI/API |
+| FR-WRK-003 | Exact type-aware status matrix, transition use case, string storage, constraints, and indexed status | Authorization and user/API workflow |
+| FR-WRK-004 | Due-date, overdue, resolution, reopen, and close behavior with relational consistency constraints | User-facing scheduling/resolution workflow |
+| FR-WRK-005 | WorkItem-controlled history persisted in append-only stable sequence order | Authenticated actor identity and history presentation |
 | FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
 
-No functional requirement is marked fully delivered because the Phase 02 core
-has no persistence or user-accessible business workflow. Change assessment,
+No functional requirement is marked fully delivered because Phase 03 has no
+user-accessible business workflow. Change assessment,
 legacy import, reporting, role-based access, REST API, and security audit
 requirements remain planned for their approved later phases.
 
@@ -114,6 +115,12 @@ requirements remain planned for their approved later phases.
 - **NFR-DOC-001 — Documentation:** Requirements, architecture decisions,
   operations, testing, AI assistance, and known limitations shall remain
   accurate as the project evolves.
+
+Phase 03 evidence for NFR-DAT-001 includes named PostgreSQL constraints,
+foreign keys, atomic EF Core saves, `xmin` concurrency checks, unique
+case-insensitive system names, and append-only ordered history tested on real
+PostgreSQL. The repository-local migration and pinned tool/package versions
+also advance NFR-BLD-001 without introducing runtime secrets.
 
 ## Out of scope
 

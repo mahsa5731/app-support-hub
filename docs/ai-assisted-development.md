@@ -95,3 +95,60 @@ production dependency, persistence implementation, or Web business workflow
 was introduced. A local host smoke test returned `Healthy` from `/health` and
 the Phase 02 status page from `/`. There were no deviations or unresolved
 issues. No line-by-line human review is claimed.
+
+## Phase 03
+
+Codex implemented EF Core and Npgsql persistence behind the existing specific
+repository contracts: explicit mappings and constraints, DbContext unit of
+work, repositories, dependency registration, stable append-only history,
+`xmin` concurrency, one migration, a shared PostgreSQL Testcontainer fixture,
+focused integration tests, expanded architecture enforcement, and Phase 03
+documentation/status updates.
+
+The supplied specification fixed PostgreSQL, package versions, schema names and
+rules, `citext`, string enums, shadow history sequence, concurrency, repository
+contracts, migration and seed policy, test coverage, and later-phase
+exclusions. The first attempt correctly stopped when consuming projects
+resolved EF Core Relational 10.0.4 through Npgsql while Infrastructure resolved
+10.0.11. A continuation explicitly approved a direct central and Infrastructure
+reference to `Microsoft.EntityFrameworkCore.Relational` 10.0.11; all consumers
+then resolved 10.0.11 and `MSB3277` disappeared.
+
+EF model construction proved that the existing internal
+`WorkItemHistoryEntry` constructor parameter `occurredAt` could not bind to
+`OccurredAtUtc`. The minimal accommodation renamed only that internal parameter
+to `occurredAtUtc`; no public API, setter, behavior, or framework dependency was
+added. PostgreSQL history round-trip tests provide regression coverage. EF's
+generated migration also required analyzer-only file-scoped-namespace and
+static column-array edits; no schema operation was changed.
+
+Validation performed before the final integrated gate included:
+
+```text
+dotnet tool restore
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build
+dotnet test tests/AppSupportHub.UnitTests/AppSupportHub.UnitTests.csproj --no-build
+dotnet test tests/AppSupportHub.ArchitectureTests/AppSupportHub.ArchitectureTests.csproj --no-build
+dotnet tool run dotnet-ef migrations list --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj
+dotnet tool run dotnet-ef migrations has-pending-model-changes --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj
+dotnet tool run dotnet-ef migrations script --idempotent --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj --output /tmp/appsupporthub-phase03-idempotent.sql
+```
+
+The compatibility build passed with zero warnings and errors. UnitTests passed
+174 cases, ArchitectureTests passed 11, and 27 IntegrationTests passed against
+one shared `postgres:17-alpine` container with no skips. The single migration
+has no pending model changes, and its temporary idempotent script was non-empty
+outside the repository. The final full solution passed 212 tests: 174 unit, 11
+architecture, and 27 PostgreSQL integration tests. Format verification initially
+identified only the configured `Async` test-method suffix and private static
+field-prefix rules; the formatter could not batch-fix those naming diagnostics,
+so the names were changed mechanically. The affected build and 27 integration
+tests passed again, followed by clean format and diff checks.
+
+The normal HTTPS launch profile started without a database connection. HTTP `/`
+redirected to HTTPS and returned the Phase 03 AppSupportHub status and
+non-affiliation text; `/health` returned HTTP 200 and `Healthy`. The host shut
+down cleanly. No secret, production seed, later-phase workflow, commit, push, or
+tag was added. No line-by-line human review is claimed.

@@ -25,7 +25,7 @@ and the AI-assistance record when its scope changes.
   architecture enforcement.
 - **Dependency:** Phase 1.
 
-## 3. PostgreSQL and Infrastructure — Planned
+## 3. PostgreSQL and Infrastructure — Completed
 
 - **Objective:** Add relational persistence behind Application contracts.
 - **Main deliverables:** PostgreSQL integration, EF Core mappings, migrations,
