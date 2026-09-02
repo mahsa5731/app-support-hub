@@ -18,7 +18,8 @@ namespace AppSupportHub.IntegrationTests.Web;
 [Collection(PostgreSqlIntegrationCollectionDefinition.Name)]
 public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLifetime
 {
-    private const string DemoActorIdentifier = "demo.user@appsupporthub.local";
+    private const string AuthenticatedActorIdentifier =
+        AppSupportHubWebApplicationFactory.AdministratorUsername;
 
     public Task InitializeAsync() => database.ResetDatabaseAsync();
 
@@ -54,7 +55,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
             .OfType<string>()
             .Where(route => route.StartsWith("/api/v1/", StringComparison.Ordinal))
             .ToArray();
-        Assert.Equal(14, apiRoutes.Length);
+        Assert.Equal(15, apiRoutes.Length);
 
         AppSupportHubDbContext dbContext = services.GetRequiredService<AppSupportHubDbContext>();
         IApplicationSystemQueries systemQueries =
@@ -210,7 +211,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
         Assert.Contains("synthetic.specialist", persistedHtml, StringComparison.Ordinal);
         Assert.Contains("UnderAnalysis", persistedHtml, StringComparison.Ordinal);
         Assert.Contains("Immutable history", persistedHtml, StringComparison.Ordinal);
-        Assert.Contains(DemoActorIdentifier, persistedHtml, StringComparison.Ordinal);
+        Assert.Contains(AuthenticatedActorIdentifier, persistedHtml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -430,7 +431,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
     }
 
     [Fact]
-    public async Task ApiIgnoresActorSpoofingAndPersistsOnlyServerDemoActorAsync()
+    public async Task ApiIgnoresActorSpoofingAndPersistsOnlyAuthenticatedActorAsync()
     {
         using var factory = new AppSupportHubWebApplicationFactory(database.ConnectionString);
         using HttpClient client = factory.CreateHttpsClient();
@@ -468,7 +469,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
             .Select(item => item.GetProperty("actorIdentifier").GetString()!)
             .ToArray();
         Assert.NotEmpty(actors);
-        Assert.All(actors, actor => Assert.Equal(DemoActorIdentifier, actor));
+        Assert.All(actors, actor => Assert.Equal(AuthenticatedActorIdentifier, actor));
         Assert.DoesNotContain("spoofed.external.actor", detail.ToString(), StringComparison.Ordinal);
     }
 
@@ -633,7 +634,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
         Assert.Contains("<footer", home, StringComparison.Ordinal);
         Assert.Contains("Skip to main content", home, StringComparison.Ordinal);
         Assert.Contains("Phase 04", home, StringComparison.Ordinal);
-        Assert.Contains("Demo mode", home, StringComparison.Ordinal);
+        Assert.Contains("Public read-only portfolio demo", home, StringComparison.Ordinal);
         Assert.Contains("not affiliated", home, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, CountOccurrences(create, "<h1"));
         Assert.Contains("<label", create, StringComparison.Ordinal);

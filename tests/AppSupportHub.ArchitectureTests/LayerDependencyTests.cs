@@ -163,7 +163,7 @@ public sealed class LayerDependencyTests
     }
 
     [Fact]
-    public void Phase04WebPackagesAreConfinedToApprovedProjects()
+    public void WebPackagesAndPhase06SecurityRemainWithinApprovedBoundaries()
     {
         string solutionRoot = FindSolutionRoot();
         Dictionary<string, string> projects = new(StringComparer.Ordinal)
@@ -199,6 +199,34 @@ public sealed class LayerDependencyTests
         Assert.Equal(
             "10.0.11",
             GetCentralPackageVersion(solutionRoot, "Microsoft.AspNetCore.Mvc.Testing"));
+        Assert.Equal(
+            13,
+            XDocument.Load(Path.Combine(solutionRoot, "Directory.Packages.props"))
+                .Descendants("PackageVersion")
+                .Count());
+        string migrations = Path.Combine(
+            solutionRoot,
+            "src",
+            InfrastructureAssemblyName,
+            "Persistence",
+            "Migrations");
+        Assert.Equal(
+            2,
+            Directory.EnumerateFiles(migrations, "*_*.cs")
+                .Count(path => !path.EndsWith(".Designer.cs", StringComparison.Ordinal)));
+        string appSettings = File.ReadAllText(Path.Combine(
+            solutionRoot,
+            "src",
+            WebAssemblyName,
+            "appsettings.json"));
+        Assert.DoesNotContain("Password", appSettings, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Username", appSettings, StringComparison.OrdinalIgnoreCase);
+        AssertDoesNotReference(
+            AppSupportHub.Domain.AssemblyReference.Assembly,
+            "Microsoft.AspNetCore.Authorization");
+        AssertDoesNotReference(
+            AppSupportHub.Application.AssemblyReference.Assembly,
+            "Microsoft.AspNetCore.Authorization");
     }
 
     [Fact]

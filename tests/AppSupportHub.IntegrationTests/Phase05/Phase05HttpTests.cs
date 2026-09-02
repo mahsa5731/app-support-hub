@@ -49,7 +49,10 @@ public sealed class Phase05HttpTests(PostgreSqlContainerFixture fixture)
         Assert.Equal(assessmentRoute, saved.Headers.Location!.OriginalString);
         string reloaded = await client.GetStringAsync(assessmentRoute);
         Assert.Contains("Synthetic business need", reloaded, StringComparison.Ordinal);
-        Assert.Contains("demo.user@appsupporthub.local", reloaded, StringComparison.Ordinal);
+        Assert.Contains(
+            AppSupportHubWebApplicationFactory.AdministratorUsername,
+            reloaded,
+            StringComparison.Ordinal);
 
         string previewHtml = await client.GetStringAsync("/LegacyImports");
         token = AntiforgeryTokenExtractor.Extract(previewHtml);
