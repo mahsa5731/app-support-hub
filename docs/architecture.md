@@ -122,8 +122,25 @@ for `/` and `/health`. The standard future connection key is
 `ConnectionStrings:AppSupportHub`, overridden by
 `ConnectionStrings__AppSupportHub`. Integration tests use one isolated
 `postgres:17-alpine` Testcontainer, apply migrations, arrange synthetic records,
-and truncate between tests. No production data is seeded; Phase 04 may add an
-explicit, idempotent, opt-in synthetic demo seeder through Application handlers.
+and truncate between tests. No production data is seeded; any later demo-data
+decision must remain explicit, idempotent, opt-in, and synthetic.
+
+## Read-query boundary
+
+Phase 04A separates aggregate repositories from presentation-neutral reads.
+Application owns `IApplicationSystemQueries`, `IWorkItemQueries`, their bounded
+filters, and immutable summary/detail/history models. Handlers validate enum
+and limit input, normalize optional text, supply UTC time through
+`TimeProvider`, and translate absent records into stable Application errors.
+Neither port exposes aggregates, `IQueryable`, EF types, or a DbContext.
+
+Infrastructure implements both ports with scoped EF Core services over the same
+DbContext registration as repositories and `IUnitOfWork`. PostgreSQL performs
+case-insensitive matching, filtering, deterministic ordering, joins, overdue
+calculation, and limits before materialization. Projections use `AsNoTracking`;
+WorkItem detail loads only the selected row and its projected history, ordered
+by the existing shadow `Sequence` rather than timestamp. All database calls
+receive the caller's cancellation token. ADR 0005 records this choice.
 
 ## Feature organization
 
@@ -171,11 +188,13 @@ simple. If measured scale or organizational ownership later justifies service
 extraction, explicit module contracts provide seams. Microservices are not a
 default destination and are unnecessary for the current portfolio scope.
 
-## Phase 03 boundary
+## Phase 04A boundary
 
 The implemented architecture now includes the Systems and WorkItems core,
 specific PostgreSQL repositories, explicit schema constraints, migrations,
-transactions, stable history, and optimistic concurrency. Web still has no
-business pages or endpoints and does not compose a runtime database connection.
+transactions, stable history, optimistic concurrency, bounded read ports, and
+the complete non-HTTP Application mutation surface for existing Domain
+behavior. Web still has no business pages or endpoints and does not compose a
+runtime database connection.
 Authentication, change assessment, legacy import, reporting, operational
 readiness, containerization, CI/CD, and deployment remain later-phase work.

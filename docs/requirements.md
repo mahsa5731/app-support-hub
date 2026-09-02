@@ -2,10 +2,10 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 03 adds tested
-PostgreSQL persistence behind the Phase 02 Systems and WorkItems core.
-User-facing workflows, security, integrations, and operations remain
-later-phase work.
+These requirements define the intended portfolio product. Phase 04A adds tested
+Systems and WorkItems Application read and mutation workflows over the Phase 03
+PostgreSQL foundation. User-facing workflows, security, integrations, and
+operations remain later-phase work.
 
 ## Functional requirements
 
@@ -63,20 +63,20 @@ later-phase work.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Phase 03 implementation traceability
+## Phase 04A implementation traceability
 
-| Requirement | Implemented evidence through Phase 03 | Remaining delivery |
+| Requirement | Implemented evidence through Phase 04A | Remaining delivery |
 | --- | --- | --- |
-| FR-SYS-001 | ApplicationSystem rules and use cases plus PostgreSQL repository persistence, case-insensitive unique names, and retirement round-trips | Retrieval/search use cases, authorization, and user/API workflows |
-| FR-SYS-002 | Commercial/custom metadata with database enum, vendor, retirement, timestamp, and length constraints | User-facing maintenance |
+| FR-SYS-001 | Create, get, bounded search/filter, update, lifecycle change, and retirement Application workflows; PostgreSQL projections and case-insensitive name uniqueness exclude the current record during update | Authorization and Razor Pages/API workflows |
+| FR-SYS-002 | Commercial/custom detail and summary read models retain ownership, support, vendor, criticality, lifecycle, retirement, and UTC metadata | User-facing maintenance |
 | FR-WRK-001 | Explicit work-item types, creation use case, relational storage, and required system foreign key | User/API creation workflow |
-| FR-WRK-002 | Assignment, priority, due-date behavior, persistence, and indexed columns | Priority/due-date use cases, authorization, and UI/API |
+| FR-WRK-002 | Assignment, unassignment, priority-change, and due-date Application handlers plus bounded filtered read projections | Authorization and UI/API workflows |
 | FR-WRK-003 | Exact type-aware status matrix, transition use case, string storage, constraints, and indexed status | Authorization and user/API workflow |
-| FR-WRK-004 | Due-date, overdue, resolution, reopen, and close behavior with relational consistency constraints | User-facing scheduling/resolution workflow |
-| FR-WRK-005 | WorkItem-controlled history persisted in append-only stable sequence order | Authenticated actor identity and history presentation |
+| FR-WRK-004 | Due-date and detail-update handlers plus list/detail projections compute overdue state from handler-supplied UTC time and expose resolution state | User-facing scheduling/resolution workflow |
+| FR-WRK-005 | Detail queries join system names and project immutable history in Infrastructure shadow-sequence order, including equal timestamps | Authenticated actor identity and history presentation |
 | FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
 
-No functional requirement is marked fully delivered because Phase 03 has no
+No functional requirement is marked fully delivered because Phase 04A adds no
 user-accessible business workflow. Change assessment,
 legacy import, reporting, role-based access, REST API, and security audit
 requirements remain planned for their approved later phases.
@@ -121,6 +121,12 @@ foreign keys, atomic EF Core saves, `xmin` concurrency checks, unique
 case-insensitive system names, and append-only ordered history tested on real
 PostgreSQL. The repository-local migration and pinned tool/package versions
 also advance NFR-BLD-001 without introducing runtime secrets.
+
+Phase 04A advances NFR-MNT-001, NFR-PRF-001, and NFR-TST-001 through explicit
+Application-owned query ports and presentation-neutral read models, bounded
+server-side no-tracking projections, deterministic ordering, cancellation, and
+focused unit, PostgreSQL integration, and architecture coverage. A limit is not
+cursor or page-number pagination; full pagination remains later work.
 
 ## Out of scope
 

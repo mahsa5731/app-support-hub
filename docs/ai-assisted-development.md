@@ -152,3 +152,45 @@ redirected to HTTPS and returned the Phase 03 AppSupportHub status and
 non-affiliation text; `/health` returned HTTP 200 and `Healthy`. The host shut
 down cleanly. No secret, production seed, later-phase workflow, commit, push, or
 tag was added. No line-by-line human review is claimed.
+
+## Phase 04A
+
+Codex implemented the non-HTTP Systems and WorkItems workflow foundation:
+Application-owned filters, read models, query ports and handlers; six explicit
+mutation handlers over existing Domain behavior; bounded PostgreSQL
+`AsNoTracking` projections; scoped dependency registration; focused unit,
+integration, and architecture coverage; ADR 0005; and Phase 04A documentation.
+
+The supplied specification fixed the read fields, filters, limits, ordering,
+stable errors, cancellation and `TimeProvider` boundaries, mutation save
+semantics, PostgreSQL projection behavior, documentation scope, and Phase 04B
+exclusions. Codex selected only feature-local type layout, projection structure,
+and focused test arrangements needed to implement those decisions. Domain,
+schema, migrations, packages, project references, startup, health, and Web
+behavior were unchanged.
+
+Validation performed included:
+
+```text
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.UnitTests/AppSupportHub.UnitTests.csproj --no-build
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build
+dotnet test tests/AppSupportHub.ArchitectureTests/AppSupportHub.ArchitectureTests.csproj --no-build
+dotnet test AppSupportHub.sln --no-build
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+git diff --check
+```
+
+The exact final build passed with zero warnings and zero errors. UnitTests
+passed 213 cases, IntegrationTests passed 34 cases against one shared
+`postgres:17-alpine` container, and ArchitectureTests passed 13 cases, all with
+zero skips. The one full solution run passed all 260 tests. Formatting passed
+after correcting one reported import-order issue; the final diff check passed.
+The test host and parallel MSBuild workspace required approved local-socket/IPC
+access outside the execution sandbox. No Web smoke test was run because Web
+behavior is intentionally unchanged in 04A.
+
+Phase 04B Razor Pages and REST API adapters, authentication, authorization,
+accessibility evidence, deployment, and all later-phase features remain absent.
+No commit, push, tag, secret, production data, or line-by-line human review is
+claimed.
