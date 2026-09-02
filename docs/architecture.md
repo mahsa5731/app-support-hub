@@ -49,7 +49,50 @@ decisions. Infrastructure implements technical details selected by Application
 contracts; it must not become a second business layer. Keeping business logic
 in Domain and Application makes it testable without a web server or database.
 
-## Planned modules and feature organization
+## Systems and WorkItems core
+
+Phase 02 implements two feature-oriented Domain modules:
+
+- **Systems:** `ApplicationSystem` owns classification, ownership, criticality,
+  lifecycle, vendor, and retirement invariants.
+- **WorkItems:** `WorkItem` owns incident, enhancement, and change-request
+  details; assignment, priority, due date, status, resolution, overdue behavior;
+  and its immutable history sequence.
+
+```mermaid
+flowchart LR
+    System[ApplicationSystem aggregate]
+    WorkItem[WorkItem aggregate]
+    History[WorkItemHistoryEntry entity]
+    WorkItem -->|references by ApplicationSystemId| System
+    WorkItem -->|owns ordered history| History
+```
+
+ApplicationSystem and WorkItem are separate aggregate boundaries. WorkItem
+stores only the application-system ID, so a work-item mutation cannot silently
+change system state. Application handlers coordinate cross-aggregate checks,
+such as preventing creation for a retired system. WorkItem alone creates and
+appends history entries; exposing a read-only collection prevents callers from
+rewriting audit facts.
+
+Application defines specific `IApplicationSystemRepository` and
+`IWorkItemRepository` ports because each aggregate needs an intentional query
+surface and invariant-aware operations. A generic repository would obscure
+those differences and encourage unrestricted persistence access. The five use
+cases use explicit sealed handlers with `ExecuteAsync`; MediatR and
+reflection-based dispatch would add indirection without a current need.
+
+Handlers obtain time from an injected `TimeProvider`. Domain factories and
+mutations receive the instant explicitly and normalize stored values to UTC.
+This prevents hidden system-clock calls and keeps tests deterministic.
+
+Expected failures use one structured Application error. Stable business-rule
+codes introduced in this phase include
+`systems.invalid_lifecycle_transition` and
+`work_items.assignment_forbidden`; status matrix failures use the specified
+`work_items.invalid_transition` code.
+
+## Feature organization
 
 Later phases organize work by plural feature or module name rather than by
 technical dumping grounds. Planned modules are Systems, WorkItems,
@@ -77,8 +120,9 @@ Web/Pages/
   Operations/
 ```
 
-These directories do not exist in Phase 01 because empty feature shells would
-misrepresent implemented behavior.
+Systems and WorkItems now exist in Domain and Application. The remaining module
+directories are not created until they contain behavior, so empty feature
+shells cannot misrepresent implemented scope.
 
 Namespaces follow project and feature folders. Types and files use descriptive
 names, one primary top-level type per file, minimal public APIs, and conventional
@@ -94,10 +138,11 @@ simple. If measured scale or organizational ownership later justifies service
 extraction, explicit module contracts provide seams. Microservices are not a
 default destination and are unnecessary for the current portfolio scope.
 
-## Phase 01 boundary
+## Phase 02 boundary
 
-The implemented architecture contains project references, assembly markers,
-central engineering configuration, reflection-based architecture tests, a
-minimal Razor Pages host, and a liveness endpoint. There are no domain entities,
-business use cases, persistence adapters, security features, integrations, or
-business API endpoints yet.
+The implemented architecture now contains Systems and WorkItems aggregates,
+specific persistence ports, a dependency-free result model, and five explicit
+Application handlers in addition to the Phase 01 foundation. Infrastructure has
+no repository implementation, and Web has no business pages or endpoints.
+There is no database, authentication, change assessment, legacy import,
+reporting, or deployment implementation.

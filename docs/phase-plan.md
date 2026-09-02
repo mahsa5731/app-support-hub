@@ -15,7 +15,7 @@ and the AI-assistance record when its scope changes.
   suite, format verification, and local `/` and `/health` smoke tests.
 - **Dependency:** None.
 
-## 2. Domain and Application core — Planned
+## 2. Domain and Application core — Completed
 
 - **Objective:** Model the core support concepts and use cases without external
   technology dependencies.

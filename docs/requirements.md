@@ -2,10 +2,9 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 01 implements
-only the engineering foundation; every business requirement below is planned
-for a later phase unless explicitly identified as a current operational
-baseline.
+These requirements define the intended portfolio product. Phase 02 implements
+the Systems and WorkItems Domain/Application core. Persistence, user-facing
+workflows, security, integrations, and operations remain later-phase work.
 
 ## Functional requirements
 
@@ -62,6 +61,24 @@ baseline.
 - **FR-AUD-001 — Auditability:** Security-sensitive and material business
   operations shall produce traceable audit records protected from ordinary
   application updates.
+
+## Phase 02 implementation traceability
+
+| Requirement | Phase 02 Domain/Application evidence | Remaining delivery |
+| --- | --- | --- |
+| FR-SYS-001 | ApplicationSystem creation, metadata, lifecycle, and retirement rules; create and retire use cases | Persistence, retrieval/search, authorization, and user/API workflows |
+| FR-SYS-002 | Commercial/custom classification, ownership, support team, criticality, lifecycle, and commercial-vendor invariant | Persistence and user-facing maintenance |
+| FR-WRK-001 | Incident, enhancement, and change-request types plus validated creation use case | Persistence and user/API creation workflow |
+| FR-WRK-002 | Assignment, priority, and due-date Domain behavior; assignment use case | Persistence, priority/due-date use cases, authorization, and UI/API |
+| FR-WRK-003 | Exact type-aware status matrix, `CanTransitionTo`, and transition use case | Persistence, authorization, and user/API workflow |
+| FR-WRK-004 | Due-date validation, overdue calculation, resolution, reopen, and close behavior | Persistence and user-facing scheduling/resolution workflow |
+| FR-WRK-005 | WorkItem-controlled immutable history with structured event types and values | Durable storage, actor identity, and history presentation |
+| FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
+
+No functional requirement is marked fully delivered because the Phase 02 core
+has no persistence or user-accessible business workflow. Change assessment,
+legacy import, reporting, role-based access, REST API, and security audit
+requirements remain planned for their approved later phases.
 
 ## Non-functional requirements
 
