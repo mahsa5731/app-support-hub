@@ -87,9 +87,10 @@ fictional dataset.
 - **Phase 08A — Completed:** A cache-aware multi-stage, non-root .NET 10
   container; read-only GitHub Actions validation; local container smoke evidence;
   and the Render/Neon environment, migration, health, and secret handoff.
-- **Phase 08B — Next:** Provider resources, explicit Neon migration and narrow
-  fictional Production seed, automated Render deployment, public read-only demo
-  URL, release/rollback evidence, and final documentation.
+- **Phase 08B — Prepared, external release pending:** The narrow explicit,
+  idempotent fictional Production seed command is ready for local validation.
+  Owner-controlled Neon migration/seed, Render deployment, public read-only URL,
+  release/rollback evidence, and final documentation remain pending.
 - **Required tests:** Clean CI build, container health, migration/deployment,
   rollback, environment, and deployed smoke tests.
 - **Dependency:** Phases 1–7.

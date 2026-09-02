@@ -6,7 +6,7 @@ technology team. The eventual product will bring application cataloguing,
 support work, change assessment, legacy preview boundaries, and operational
 reporting into one maintainable system.
 
-## Status: Phase 08A — Lean container and CI foundation
+## Status: Phase 08B prepared — Awaiting controlled live release
 
 Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
 Application workflows over PostgreSQL. The UI includes bounded filters,
@@ -16,8 +16,9 @@ Analyst or Administrator cookie authentication for mutations. Phase 07 adds a
 public bounded Operations overview, PostgreSQL readiness, and correlation-aware
 request completion logs without turning the demo into a reporting platform.
 Phase 08A adds a non-root .NET runtime container, read-only GitHub Actions
-validation, and a Render/Neon deployment handoff; provider setup and the public
-URL remain Phase 08B work.
+validation, and a Render/Neon deployment handoff. Phase 08B now provides an
+explicit one-shot fictional Production seed command, but the owner-controlled
+provider release and public URL are not complete.
 
 AppSupportHub is an independent portfolio project. It is **not affiliated with,
 endorsed by, or built for the City of Winnipeg**. It does not use City data or
@@ -36,7 +37,8 @@ connect to City systems.
 - Multi-stage Docker build and GitHub Actions validation
 
 Persistent enterprise identity, real legacy import, general reporting/export,
-provider deployment, and a frontend build pipeline remain outside Phase 08A.
+provider deployment, and a frontend build pipeline remain outside the local
+Phase 08B checkpoint.
 
 ## Solution structure
 

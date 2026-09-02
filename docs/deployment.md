@@ -1,8 +1,9 @@
 # Deployment handoff
 
-Phase 08A defines the deployment contract without creating provider resources,
-accounts, secrets, or a live URL. Phase 08B will deploy the root `Dockerfile` as
-a Render Web Service backed by a Neon managed PostgreSQL database.
+Phase 08B is prepared for an owner-controlled deployment of the root
+`Dockerfile` to Render Web Service with Neon managed PostgreSQL. The local code
+checkpoint creates no provider resource, handles no provider secret, and does
+not yet have a live URL.
 
 ## Runtime shape
 
@@ -13,15 +14,31 @@ a Render Web Service backed by a Neon managed PostgreSQL database.
 - Anonymous read journeys stay public and interactive login stays disabled.
 - Web startup never creates a database or applies migrations.
 
+Use these Render service fields:
+
+```text
+Name: app-support-hub
+Language: Docker
+Branch: main
+Region: Ohio (US East)
+Root Directory: blank
+Compute: Free
+Dockerfile Path: Dockerfile
+Docker Command: blank
+Health Check Path: /health/ready
+Auto-Deploy: After CI checks pass, if available
+```
+
 Configure these Render environment keys. Store the connection string as a
 secret and never place its value in source, CI, documentation, logs, command
 output, or responses:
 
 ```text
+PORT=8080
 ASPNETCORE_ENVIRONMENT=Production
 ASPNETCORE_HTTP_PORTS=8080
 ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
-ConnectionStrings__AppSupportHub=<Render secret value from Neon>
+ConnectionStrings__AppSupportHub=<raw pooled .NET Neon value in Render only>
 AppSupportHub__SeedDemoData=false
 AppSupportHub__Security__EnableInteractiveLogin=false
 ```
@@ -31,14 +48,31 @@ proxy. Keep secrets only in provider settings. Do not commit or print them.
 
 ## Database and seed responsibility
 
-Phase 08B must apply the repository's two existing migrations from a trusted
-local environment against Neon before starting or promoting Web. Do not run EF
-tools in the runtime container and do not add automatic migration to startup.
+The repository owner performs this sequence from a trusted local checkout after
+Checkpoint 1 is committed, pushed, and green in CI. Enter the private direct
+`.NET` Neon value without echo; never place it in a file, command argument,
+documentation, screenshot, or transcript:
 
-The current fictional seed is Development-only, so a new Production database is
-empty. Phase 08B may add only a narrow, explicit, idempotent fictional
-Production seed mechanism. It must not reuse `Development`, contain real data,
-or run implicitly.
+```bash
+read -r -s -p "Direct Neon connection string: " ASH08B_NEON_DIRECT
+printf '\n'
+export ConnectionStrings__AppSupportHub="$ASH08B_NEON_DIRECT"
+dotnet ef database update \
+  --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj \
+  --startup-project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj
+export ASPNETCORE_ENVIRONMENT=Production
+export AppSupportHub__SeedDemoData=true
+dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj \
+  --no-launch-profile -- --seed-fictional-demo-data
+unset ConnectionStrings__AppSupportHub ASPNETCORE_ENVIRONMENT AppSupportHub__SeedDemoData
+unset ASH08B_NEON_DIRECT
+```
+
+Migrate first, then run the seed command once and require successful exit. The
+command reuses the existing idempotent three-system/five-work-item fictional
+seeder. Without the exact token, normal Production startup never seeds—even if
+the gate is accidentally true—and Web never migrates. Do not run EF tools in
+the runtime container or change the host environment to Development.
 
 ## Health and release checks
 
@@ -60,9 +94,10 @@ headers, correlation behavior, empty-or-fictional-only data, and denied mutation
 attempts. Record the deployed revision and sanitized results; never capture
 cookies, connection data, credentials, request bodies, or antiforgery values.
 
-## Phase 08B provider work
+## Manual checkpoint
 
-After Phase 08A is pushed, the repository owner creates the provider accounts
-and resources, authorizes Render to access only this GitHub repository, sets
-provider secrets, applies migrations, performs the release checks, and documents
-rollback. None of those external changes are part of Phase 08A.
+The repository owner reviews and pushes Checkpoint 1, confirms the `CI` workflow,
+performs the private direct migration/seed sequence, configures Render with the
+private pooled runtime value, and deploys. Resume this task with only the public
+Render URL, deployed revision, and sanitized success/failure confirmations.
+Provider dashboards and secrets remain outside the local checkpoint.

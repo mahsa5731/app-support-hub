@@ -420,3 +420,47 @@ passed (307 total, zero skipped). Remote CI awaits a user push. Provider account
 GitHub authorization, Neon provisioning/migration, explicit fictional Production
 data, Render deployment, public-URL verification, and rollback remain Phase 08B;
 no live deployment or production-readiness claim is made.
+
+## Phase 08B Checkpoint 1
+
+Codex implemented only the explicit one-shot fictional Production seed command
+and the owner-controlled release handoff. The exact ordinal token is removed
+before WebApplication builder creation; the normal service graph is built, then
+Production and the existing seed gate are required before the unchanged
+`DemoDataSeeder` runs through a scope and the process exits without Kestrel.
+Normal Production startup still never migrates or seeds.
+
+The implementation modifies two production C# files with 33 net new nonblank
+lines, below the 50-line cap. It changes no test, package, project, migration,
+schema, snapshot, endpoint, page, route, container, or CI file. Documentation
+net growth is 79 nonblank lines across five files, below the
+160-line and eight-file limits. The suite remains 307 tests.
+
+One disposable PostgreSQL 17/container smoke applied both existing migrations.
+The missing-Production and missing-gate cases exited nonzero with safe messages.
+Two correctly gated one-shot invocations exited zero and preserved exactly three
+fictional systems, five fictional work items, and the original history count.
+The normal Production image, with seeding and login disabled, retained that data
+and returned 200 for all nine public/API/OpenAPI/health routes through forwarded
+HTTPS. Temporary containers, network, credential, and variables were removed.
+
+Final local validation uses:
+
+```text
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --configuration Release --no-restore
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet test AppSupportHub.sln --configuration Release --no-build --logger "console;verbosity=minimal"
+git diff --check
+```
+
+The initial Release build passed, then format verification exposed the repository's
+lower-camel naming rule for top-level constants before tests started. After the
+identifier-only correction, the final build and checks passed without warnings,
+errors, formatting drift, model changes, or whitespace errors: 228 unit, 63
+integration, and 16 architecture tests passed (307 total, zero skipped). AI
+assistance covered the scoped command path,
+secret-safe documentation, local execution, runtime checks, and budget audit;
+no line-by-line human review is claimed. No Neon/Render connection, secret,
+account action, migration, seed, deployment, public URL, or remote check is
+claimed. Those owner-controlled actions remain the mandatory manual checkpoint.

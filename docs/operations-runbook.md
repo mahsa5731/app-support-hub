@@ -10,8 +10,10 @@ not a production SLA or monitoring plan. The provider contract is in the
 - Set `ConnectionStrings__AppSupportHub`; never commit or print its value.
 - Apply both migrations explicitly before the Web host starts:
   `dotnet ef database update --project src/AppSupportHub.Infrastructure`.
-- Keep `AppSupportHub__SeedDemoData=false` unless a Development-only fictional
-  dataset is intentionally required.
+- Keep `AppSupportHub__SeedDemoData=false` during normal Production startup.
+- Production fictional data may be inserted only after explicit migration by
+  invoking `--seed-fictional-demo-data` once with Production and the seed gate;
+  the command is idempotent and exits without starting Web.
 - Interactive login is optional; when disabled, the demo remains public read-only.
 
 ## Health and diagnostics
@@ -34,6 +36,8 @@ not a production SLA or monitoring plan. The provider contract is in the
   completion event. Do not return infrastructure exceptions to the requester.
 - Migration failure: stop rollout, preserve logs without secrets, and escalate;
   never make Web automatically migrate or edit migration history manually.
+- Seed failure: stop before deployment and investigate with sanitized evidence;
+  never rerun blindly, delete records manually, or expose connection details.
 
 ## Shutdown and escalation
 
@@ -53,3 +57,7 @@ hostnames, SQL text, customer data, and generated dumps out of tickets.
 - Inspect optional Analyst/Administrator login configuration.
 - Inspect liveness/readiness public health URLs.
 - Inspect provider-specific rollback steps before release.
+
+For rollback, redeploy the last known-good application revision. Database
+migrations and fictional seed records are not automatically reversed; preserve
+them unless a separately reviewed data recovery action is required.
