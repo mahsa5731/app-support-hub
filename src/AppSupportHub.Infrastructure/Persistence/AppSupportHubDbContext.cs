@@ -1,4 +1,5 @@
 using AppSupportHub.Application.Abstractions.Persistence;
+using AppSupportHub.Domain.ChangeAssessments;
 using AppSupportHub.Domain.WorkItems;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -10,6 +11,8 @@ public sealed class AppSupportHubDbContext(
 {
     internal const string HistorySequencePropertyName = "Sequence";
     internal const string VersionPropertyName = "Version";
+
+    public DbSet<ChangeAssessment> ChangeAssessments => Set<ChangeAssessment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
