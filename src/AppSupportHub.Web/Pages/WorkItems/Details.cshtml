@@ -20,7 +20,10 @@
         {
             <a class="btn btn-outline-primary" asp-page="Assessment" asp-route-workItemId="@Model.WorkItem.Id">Change assessment</a>
         }
-        <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.WorkItem.Id">Edit details</a>
+        @if (User.IsInRole(SecurityRoles.Analyst) || User.IsInRole(SecurityRoles.Administrator))
+        {
+            <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.WorkItem.Id">Edit details</a>
+        }
     </div>
 </div>
 
@@ -49,6 +52,8 @@
     }
 </dl>
 
+@if (User.IsInRole(SecurityRoles.Analyst) || User.IsInRole(SecurityRoles.Administrator))
+{
 <section aria-labelledby="actions-heading" class="section-card">
     <h2 id="actions-heading">Work-item actions</h2>
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
@@ -113,6 +118,7 @@
         <button type="submit" class="btn btn-warning mt-3">Apply status transition</button>
     </form>
 </section>
+}
 
 <section aria-labelledby="history-heading" class="section-card">
     <h2 id="history-heading">Immutable history</h2>

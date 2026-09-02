@@ -15,7 +15,10 @@
         <h1>@Model.System.Name</h1>
         <p>@Model.System.Description</p>
     </div>
-    <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.System.Id">Edit metadata</a>
+    @if (User.IsInRole(SecurityRoles.Administrator))
+    {
+        <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.System.Id">Edit metadata</a>
+    }
 </div>
 
 <dl class="detail-grid">
@@ -38,7 +41,8 @@
 <section aria-labelledby="related-heading" class="section-card">
     <div class="page-heading compact">
         <h2 id="related-heading">Related work items</h2>
-        @if (Model.System.LifecycleStatusName != "Retired")
+        @if (Model.System.LifecycleStatusName != "Retired"
+            && (User.IsInRole(SecurityRoles.Analyst) || User.IsInRole(SecurityRoles.Administrator)))
         {
             <a class="btn btn-sm btn-outline-primary" asp-page="/WorkItems/Create" asp-route-applicationSystemId="@Model.System.Id">Create work item</a>
         }
@@ -61,6 +65,8 @@
     }
 </section>
 
+@if (User.IsInRole(SecurityRoles.Administrator))
+{
 <section aria-labelledby="lifecycle-heading" class="section-card">
     <h2 id="lifecycle-heading">Change lifecycle</h2>
     <p>Retirement is logical only; this action never deletes the system.</p>
@@ -91,3 +97,4 @@
         <button type="submit" class="btn btn-warning">Apply lifecycle change</button>
     </form>
 </section>
+}

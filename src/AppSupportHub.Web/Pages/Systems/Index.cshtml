@@ -9,7 +9,10 @@
         <h1>Application systems</h1>
         <p>Find and maintain the bounded application-system inventory.</p>
     </div>
-    <a class="btn btn-primary" asp-page="Create">Create system</a>
+    @if (User.IsInRole(SecurityRoles.Administrator))
+    {
+        <a class="btn btn-primary" asp-page="Create">Create system</a>
+    }
 </div>
 
 <form method="get" class="filter-panel" aria-label="System filters">

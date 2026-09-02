@@ -11,6 +11,8 @@
     maximum file size of 256 KiB. <a href="~/samples/legacy-systems.csv" download>Download the fictional sample CSV</a>.
 </p>
 
+@if (User.IsInRole(SecurityRoles.Analyst) || User.IsInRole(SecurityRoles.Administrator))
+{
 <form method="post" enctype="multipart/form-data" class="form-card">
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
     <label asp-for="Upload" class="form-label">CSV file</label>
@@ -18,6 +20,11 @@
     <span asp-validation-for="Upload" class="text-danger"></span>
     <button type="submit" class="btn btn-primary mt-3">Preview CSV</button>
 </form>
+}
+else
+{
+    <p class="alert alert-info">Login as an Analyst or Administrator to upload a CSV for preview.</p>
+}
 
 @if (Model.Preview is { } preview)
 {

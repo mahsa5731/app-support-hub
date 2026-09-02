@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using AppSupportHub.Application.Abstractions.Results;
 using AppSupportHub.Application.ChangeAssessments;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -10,7 +12,9 @@ namespace AppSupportHub.Web.Pages.WorkItems;
 public sealed class AssessmentModel(
     ChangeAssessmentInputFactory inputFactory,
     GetChangeAssessmentHandler getHandler,
-    SaveChangeAssessmentHandler saveHandler) : PageModel
+    SaveChangeAssessmentHandler saveHandler,
+    IAuthorizationService authorizationService,
+    CurrentActor currentActor) : PageModel
 {
     [BindProperty]
     public AssessmentInput Input { get; set; } = new();
@@ -34,6 +38,14 @@ public sealed class AssessmentModel(
         Guid workItemId,
         CancellationToken cancellationToken)
     {
+        IActionResult? denial = await this.AuthorizeMutationAsync(
+            authorizationService,
+            SecurityPolicies.AnalystOrAdministrator);
+        if (denial is not null)
+        {
+            return denial;
+        }
+
         if (!ModelState.IsValid)
         {
             await LoadAsync(workItemId, false, cancellationToken);
@@ -50,7 +62,7 @@ public sealed class AssessmentModel(
                 Input.AcceptanceCriteria,
                 Input.TestPlan,
                 Input.RollbackPlan,
-                DemoActor.Identifier);
+                currentActor.GetRequiredUsername());
         if (!command.IsSuccess)
         {
             await LoadAsync(workItemId, false, cancellationToken);

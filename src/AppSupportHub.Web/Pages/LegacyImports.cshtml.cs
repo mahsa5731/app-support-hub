@@ -1,12 +1,16 @@
 using AppSupportHub.Application.Abstractions.Results;
 using AppSupportHub.Application.LegacyImports;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AppSupportHub.Web.Pages;
 
-public sealed class LegacyImportsModel(PreviewLegacyCsvHandler handler) : PageModel
+public sealed class LegacyImportsModel(
+    PreviewLegacyCsvHandler handler,
+    IAuthorizationService authorizationService) : PageModel
 {
     [BindProperty]
     public IFormFile? Upload { get; set; }
@@ -19,6 +23,14 @@ public sealed class LegacyImportsModel(PreviewLegacyCsvHandler handler) : PageMo
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        IActionResult? denial = await this.AuthorizeMutationAsync(
+            authorizationService,
+            SecurityPolicies.AnalystOrAdministrator);
+        if (denial is not null)
+        {
+            return denial;
+        }
+
         if (Upload is null)
         {
             ModelState.AddModelError(nameof(Upload), "Choose a CSV file to preview.");

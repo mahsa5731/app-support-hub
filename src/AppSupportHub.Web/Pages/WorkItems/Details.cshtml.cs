@@ -9,6 +9,8 @@ using AppSupportHub.Application.WorkItems.ReadModels;
 using AppSupportHub.Application.WorkItems.TransitionWorkItemStatus;
 using AppSupportHub.Application.WorkItems.UnassignWorkItem;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -21,7 +23,9 @@ public sealed class DetailsModel(
     UnassignWorkItemHandler unassignHandler,
     ChangeWorkItemPriorityHandler priorityHandler,
     ChangeWorkItemDueDateHandler dueDateHandler,
-    TransitionWorkItemStatusHandler transitionHandler) : PageModel
+    TransitionWorkItemStatusHandler transitionHandler,
+    IAuthorizationService authorizationService,
+    CurrentActor currentActor) : PageModel
 {
     [BindProperty]
     public string AssigneeIdentifier { get; set; } = string.Empty;
@@ -54,24 +58,39 @@ public sealed class DetailsModel(
 
     public async Task<IActionResult> OnPostAssignAsync(Guid id, CancellationToken cancellationToken)
     {
+        IActionResult? denial = await AuthorizeWorkItemMutationAsync();
+        if (denial is not null)
+        {
+            return denial;
+        }
         ApplicationResult<MutationOutcome> result = await assignHandler.ExecuteAsync(
-            new AssignWorkItemCommand(id, AssigneeIdentifier, DemoActor.Identifier),
+            new AssignWorkItemCommand(id, AssigneeIdentifier, currentActor.GetRequiredUsername()),
             cancellationToken);
         return await CompleteMutationAsync(id, result, "Assignment updated.", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostUnassignAsync(Guid id, CancellationToken cancellationToken)
     {
+        IActionResult? denial = await AuthorizeWorkItemMutationAsync();
+        if (denial is not null)
+        {
+            return denial;
+        }
         ApplicationResult<MutationOutcome> result = await unassignHandler.ExecuteAsync(
-            new UnassignWorkItemCommand(id, DemoActor.Identifier),
+            new UnassignWorkItemCommand(id, currentActor.GetRequiredUsername()),
             cancellationToken);
         return await CompleteMutationAsync(id, result, "Assignment removed.", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostPriorityAsync(Guid id, CancellationToken cancellationToken)
     {
+        IActionResult? denial = await AuthorizeWorkItemMutationAsync();
+        if (denial is not null)
+        {
+            return denial;
+        }
         ApplicationResult<ChangeWorkItemPriorityCommand> parsed =
-            inputFactory.CreatePriorityCommand(id, Priority, DemoActor.Identifier);
+            inputFactory.CreatePriorityCommand(id, Priority, currentActor.GetRequiredUsername());
         if (!parsed.IsSuccess)
         {
             await LoadAsync(id, false, cancellationToken);
@@ -86,6 +105,11 @@ public sealed class DetailsModel(
 
     public async Task<IActionResult> OnPostDueDateAsync(Guid id, CancellationToken cancellationToken)
     {
+        IActionResult? denial = await AuthorizeWorkItemMutationAsync();
+        if (denial is not null)
+        {
+            return denial;
+        }
         if (!UtcInputParser.TryParseDateTimeLocalUtc(DueAtUtc, out DateTimeOffset? dueAt))
         {
             ModelState.AddModelError(nameof(DueAtUtc), "Enter an unambiguous UTC date and time.");
@@ -94,7 +118,7 @@ public sealed class DetailsModel(
         }
 
         ApplicationResult<MutationOutcome> result = await dueDateHandler.ExecuteAsync(
-            new ChangeWorkItemDueDateCommand(id, dueAt, DemoActor.Identifier),
+            new ChangeWorkItemDueDateCommand(id, dueAt, currentActor.GetRequiredUsername()),
             cancellationToken);
         return await CompleteMutationAsync(id, result, "Due date updated.", cancellationToken);
     }
@@ -103,11 +127,16 @@ public sealed class DetailsModel(
         Guid id,
         CancellationToken cancellationToken)
     {
+        IActionResult? denial = await AuthorizeWorkItemMutationAsync();
+        if (denial is not null)
+        {
+            return denial;
+        }
         ApplicationResult<TransitionWorkItemStatusCommand> parsed =
             inputFactory.CreateTransitionCommand(
                 id,
                 TargetStatus,
-                DemoActor.Identifier,
+                currentActor.GetRequiredUsername(),
                 Comment,
                 ResolutionSummary);
         if (!parsed.IsSuccess)
@@ -124,6 +153,11 @@ public sealed class DetailsModel(
             cancellationToken);
         return await CompleteMutationAsync(id, result, "Status transitioned.", cancellationToken);
     }
+
+    private Task<IActionResult?> AuthorizeWorkItemMutationAsync() =>
+        this.AuthorizeMutationAsync(
+            authorizationService,
+            SecurityPolicies.AnalystOrAdministrator);
 
     private async Task<IActionResult> CompleteMutationAsync(
         Guid id,

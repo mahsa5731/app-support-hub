@@ -6,6 +6,7 @@ using AppSupportHub.Application.WorkItems.CreateWorkItem;
 using AppSupportHub.Application.WorkItems.Inputs;
 using AppSupportHub.Web.Http;
 using AppSupportHub.Web.Models.WorkItems;
+using AppSupportHub.Web.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,7 +16,8 @@ public sealed class CreateModel(
     ApplicationSystemInputFactory systemInputFactory,
     WorkItemInputFactory workItemInputFactory,
     ListApplicationSystemsHandler listSystemsHandler,
-    CreateWorkItemHandler createHandler) : PageModel
+    CreateWorkItemHandler createHandler,
+    CurrentActor currentActor) : PageModel
 {
     [BindProperty]
     public WorkItemFormInput Input { get; set; } = new();
@@ -67,7 +69,7 @@ public sealed class CreateModel(
                 Input.Description,
                 Input.Priority,
                 dueAt,
-                DemoActor.Identifier);
+                currentActor.GetRequiredUsername());
         if (!parsed.IsSuccess)
         {
             await LoadSystemsAsync(cancellationToken);

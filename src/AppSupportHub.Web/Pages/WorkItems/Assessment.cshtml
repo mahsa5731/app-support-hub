@@ -2,6 +2,8 @@
 @model AppSupportHub.Web.Pages.WorkItems.AssessmentModel
 @{
     ViewData["Title"] = "Change assessment";
+    bool canSave = User.IsInRole(SecurityRoles.Analyst)
+        || User.IsInRole(SecurityRoles.Administrator);
 }
 
 @if (TempData["StatusMessage"] is string statusMessage)
@@ -13,10 +15,15 @@
 <h1>Change assessment</h1>
 <p>
     Record the business, technical, security, testing, and rollback analysis for this
-    change request. Demo mode uses the server-owned actor; all dates below are UTC.
+    change request. Saves use the authenticated username; all dates below are UTC.
 </p>
+@if (!canSave)
+{
+    <p class="alert alert-info">Public read-only view. Login as an Analyst or Administrator to save.</p>
+}
 
 <form method="post" class="form-card">
+    <fieldset disabled="@(!canSave)">
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
     <div class="mb-3">
         <label asp-for="Input.BusinessNeed" class="form-label"></label>
@@ -58,7 +65,11 @@
         <textarea asp-for="Input.RollbackPlan" class="form-control" rows="3"></textarea>
         <span asp-validation-for="Input.RollbackPlan" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Save assessment</button>
+    </fieldset>
+    @if (canSave)
+    {
+        <button type="submit" class="btn btn-primary">Save assessment</button>
+    }
 </form>
 
 @if (Model.ExistingAssessment is { } assessment)

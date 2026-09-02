@@ -3,6 +3,7 @@ using AppSupportHub.Application.WorkItems.GetWorkItem;
 using AppSupportHub.Application.WorkItems.ReadModels;
 using AppSupportHub.Application.WorkItems.UpdateWorkItemDetails;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -10,7 +11,8 @@ namespace AppSupportHub.Web.Pages.WorkItems;
 
 public sealed class EditModel(
     GetWorkItemHandler getHandler,
-    UpdateWorkItemDetailsHandler updateHandler) : PageModel
+    UpdateWorkItemDetailsHandler updateHandler,
+    CurrentActor currentActor) : PageModel
 {
     [BindProperty]
     public string Title { get; set; } = string.Empty;
@@ -51,7 +53,11 @@ public sealed class EditModel(
         }
 
         ApplicationResult<MutationOutcome> result = await updateHandler.ExecuteAsync(
-            new UpdateWorkItemDetailsCommand(id, Title, Description, DemoActor.Identifier),
+            new UpdateWorkItemDetailsCommand(
+                id,
+                Title,
+                Description,
+                currentActor.GetRequiredUsername()),
             cancellationToken);
         if (!result.IsSuccess)
         {

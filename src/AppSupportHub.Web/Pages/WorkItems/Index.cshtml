@@ -9,7 +9,10 @@
         <h1>Work items</h1>
         <p>Review incidents, enhancements, and change requests.</p>
     </div>
-    <a class="btn btn-primary" asp-page="Create">Create work item</a>
+    @if (User.IsInRole(SecurityRoles.Analyst) || User.IsInRole(SecurityRoles.Administrator))
+    {
+        <a class="btn btn-primary" asp-page="Create">Create work item</a>
+    }
 </div>
 
 <form method="get" class="filter-panel" aria-label="Work-item filters">

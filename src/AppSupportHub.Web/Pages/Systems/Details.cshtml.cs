@@ -7,6 +7,8 @@ using AppSupportHub.Application.WorkItems.Inputs;
 using AppSupportHub.Application.WorkItems.ListWorkItems;
 using AppSupportHub.Application.WorkItems.ReadModels;
 using AppSupportHub.Web.Http;
+using AppSupportHub.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -17,7 +19,8 @@ public sealed class DetailsModel(
     WorkItemInputFactory workItemInputFactory,
     GetApplicationSystemHandler getHandler,
     ListWorkItemsHandler listWorkItemsHandler,
-    ChangeApplicationSystemLifecycleHandler lifecycleHandler) : PageModel
+    ChangeApplicationSystemLifecycleHandler lifecycleHandler,
+    IAuthorizationService authorizationService) : PageModel
 {
     [BindProperty]
     public string TargetLifecycleStatus { get; set; } = string.Empty;
@@ -43,6 +46,14 @@ public sealed class DetailsModel(
         Guid id,
         CancellationToken cancellationToken)
     {
+        IActionResult? denial = await this.AuthorizeMutationAsync(
+            authorizationService,
+            SecurityPolicies.AdministratorOnly);
+        if (denial is not null)
+        {
+            return denial;
+        }
+
         if (!ConfirmLifecycleChange)
         {
             ModelState.AddModelError(
