@@ -337,3 +337,47 @@ cookie API antiforgery, headers, login limiting, and disabled-login read-only
 startup; all temporary processes, container, credentials, and files were
 removed. Identity remains a configuration-backed portfolio adapter, and audit
 evidence remains intentionally partial; no line-by-line human review is claimed.
+
+## Phase 07
+
+Codex implemented the fixed lean operations slice: Infrastructure-owned
+PostgreSQL connectivity/read projection, separate readiness routing,
+correlation-scoped completion logging, one public Operations Razor Page, four
+coherent integration tests, and the concise runbook. The specification retained
+the public-demo boundary and excluded general reporting, pagination, metrics,
+tracing backends, deployment, and schema work.
+
+Measured growth is 6 production/view files and 306 nonblank production/view
+lines, plus 1 test file, 4 test methods, and 170 nonblank test lines.
+Documentation remains below its 130-line cap. An initial framework-reference
+approach made an existing package redundant; splitting the Infrastructure
+connectivity check from the built-in Web health adapter preserved the exact
+package graph.
+
+Validation performed included:
+
+```text
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --no-restore
+dotnet test tests/AppSupportHub.IntegrationTests/AppSupportHub.IntegrationTests.csproj --no-build --filter "Phase=07|FullyQualifiedName~Phase07"
+dotnet test AppSupportHub.sln --no-build
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet ef migrations has-pending-model-changes --project src/AppSupportHub.Infrastructure/AppSupportHub.Infrastructure.csproj --no-build
+git diff --check
+```
+
+The final build passed without warnings/errors; 4 focused tests passed, then
+the single full gate passed 228 unit, 63 integration, and 16 architecture tests
+(307 total, zero skips). Format and model checks passed. Temporary EF command
+logging confirmed three asynchronous server-side queries: two aggregate-only
+counts and one parameterized, due-date/ID ordered, hard-`Take(5)` projection.
+The predicates align with existing lifecycle/status/priority/due indexes; the
+tiny seed EXPLAIN is qualitative evidence only, not a scale claim.
+
+The ephemeral PostgreSQL 17/HTTPS smoke verified public routes and seeded
+Operations values, reachable and unavailable health states, correlation IDs,
+and a Phase 06 authenticated mutation. The host survived database loss while
+liveness stayed 200 and readiness became a safe 503. Container, host,
+credentials, logs, SQL/EXPLAIN output, and temporary files were removed. No
+external monitoring, production identity, general reporting, deployment, or
+line-by-line human review is claimed.

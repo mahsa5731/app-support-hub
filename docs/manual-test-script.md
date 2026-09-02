@@ -52,7 +52,7 @@ This script is a focused acceptance aid, not security or WCAG certification.
    transition and verify 409.
 5. Add an `actorIdentifier` property to a mutation body. Verify history still
    records only the authenticated username.
-6. Verify `/health` returns 200 and contains no database-readiness claim.
+6. Verify `/health` remains database-independent and `/health/ready` reflects PostgreSQL.
 
 ## Phase 05 change assessment
 
@@ -82,6 +82,16 @@ This script is a focused acceptance aid, not security or WCAG certification.
    authenticated username persists; verify System administration is denied.
 4. As Administrator, perform a System mutation. For unsafe API calls, verify a
    cookie alone fails and the supporting antiforgery header succeeds.
+
+## Phase 07 operational journey
+
+1. Browse `/Operations` anonymously; verify six counts, UTC as-of wording,
+   fictional/non-affiliation text, filtered links, and no more than five rows.
+2. With PostgreSQL available, verify `/health` and `/health/ready` return 200.
+   Stop PostgreSQL and confirm only readiness becomes 503 with safe status text.
+3. Send no, valid, and invalid `X-Correlation-ID` values; verify generated,
+   normalized, and replaced lowercase 32-character response values.
+4. Confirm normal public reads and one authenticated Phase 06 mutation still work.
 
 Record browser, date, pass/fail, and any observation outside the repository.
 Do not enter a real person, organization, credential, customer, or production

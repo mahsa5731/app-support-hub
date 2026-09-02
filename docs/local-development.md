@@ -76,8 +76,14 @@ export AppSupportHub__Security__Analyst__Password AppSupportHub__Security__Admin
 Both passwords must be at least 12 characters. Login at `/Account/Login`.
 
 Open the HTTPS URL printed by ASP.NET Core. Useful paths are `/`, `/Systems`,
-`/WorkItems`, `/api/v1/systems`, `/openapi/v1.json`, and `/health`. The demo
+`/WorkItems`, `/Operations`, `/api/v1/systems`, `/openapi/v1.json`, `/health`,
+and `/health/ready`. The demo
 actor is synthetic only for seeding; interactive mutations use the configured username.
+
+`/health` is database-independent liveness; `/health/ready` requires PostgreSQL.
+Send a valid GUID in `X-Correlation-ID` to see its lowercase `N` form returned,
+or send an invalid value to confirm replacement. See the
+[operations runbook](operations-runbook.md) for safe troubleshooting.
 
 ## Validate
 

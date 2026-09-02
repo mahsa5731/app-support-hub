@@ -68,18 +68,21 @@ and the AI-assistance record when its scope changes.
   input-security, secret-safety, and audit tests.
 - **Dependency:** Phases 1–5.
 
-## 7. Operational readiness and quality — Planned
+## 7. Lean operational readiness — Complete
 
-- **Objective:** Make behavior observable, supportable, measurable, and
-  thoroughly documented.
-- **Main deliverables:** Readiness checks, structured logging, dashboard and SQL
-  reporting, performance review, pagination, troubleshooting runbook, and
-  manual test scripts.
-- **Required tests:** Health, reporting, pagination, performance, failure-mode,
-  logging, accessibility, and manual regression tests.
+- **Objective:** Add explainable operational evidence for the small public demo.
+- **Main deliverables:** Separate PostgreSQL readiness, correlation-scoped
+  completion logging, one bounded public Operations projection/page, qualitative
+  query review, troubleshooting runbook, and manual journey.
+- **Required tests:** Overview projection, public rendering, health failure mode,
+  and correlation behavior.
 - **Dependency:** Phases 1–6.
 
-## 8. CI/CD, Docker, deployment, and final documentation — Planned
+General reporting/export, configurable dashboards, and list pagination are
+intentionally removed from this portfolio scope; existing bounds suit the
+fictional dataset.
+
+## 8. CI/CD, Docker, deployment, and final documentation — Next
 
 - **Objective:** Automate repeatable validation and deployment of the completed
   portfolio application.

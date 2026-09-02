@@ -247,7 +247,7 @@ indexed name-existence query per unique valid name is deliberately retained as
 a clear bounded tradeoff. Web renders results only; there is no import API,
 upload persistence, disposition workflow, or audit subsystem.
 
-Persistent identity, reporting, operational readiness, production security
+Persistent identity, general reporting, external monitoring, production security
 hardening, containerization, CI/CD, and deployment remain later-phase work.
 
 ## Phase 06 configured security adapter
@@ -266,3 +266,18 @@ remote client. Security headers deny framing/objects/external origins without
 breaking local static assets. Structured authentication logs, existing history,
 and assessment actor fields are partial audit evidence—not persistent identity,
 lockout, System audit, or centralized tamper-resistant logging.
+
+## Phase 07 operational boundaries
+
+Infrastructure owns the PostgreSQL readiness check and a no-tracking Operations
+query adapter. The Application-owned port, overview model, and time-aware
+handler expose six counts plus a due-date/ID ordered `Take(5)` projection; no EF
+or Domain type reaches Web. Three asynchronous server-side queries keep the
+small fictional overview understandable and bounded.
+
+`/health` selects no registered checks, so it remains process liveness.
+`/health/ready` selects only the tagged PostgreSQL check and returns status text
+without exceptions or connection details. Early Web middleware accepts only a
+GUID correlation header, normalizes it, scopes downstream logs, and emits one
+method/path/status/elapsed completion event without query strings or content.
+The public Razor Page is operational evidence, not a dashboard/reporting engine.

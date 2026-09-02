@@ -46,22 +46,21 @@ portfolio accounts, roles, authenticated actors, and request controls.
 
 ### Information access and operations
 
-- **FR-REP-001 — Dashboard:** Authorized users shall view operational summaries
-  for application systems and work items.
-- **FR-REP-002 — Reporting:** Authorized users shall filter and export defined
-  support and change-management reports.
+- **FR-REP-001 — Overview:** Users shall view a bounded read-only operational
+  summary for fictional application systems and work items.
+- **FR-REP-002 — Reporting:** General reporting and export are intentionally
+  outside this portfolio scope.
 - **FR-SEC-001 — Role-based access:** The system shall authorize operations by
   defined roles and enforce access on the server.
 - **FR-API-001 — REST API:** The system shall expose a documented, versioned REST
   API for supported business operations.
 - **FR-OPS-001 — Operational health:** The host shall expose health information
-  suitable for liveness and later readiness monitoring. Phase 01 provides only
-  the liveness baseline.
+  suitable for separate liveness and PostgreSQL readiness monitoring.
 - **FR-AUD-001 — Auditability:** Security-sensitive and material business
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Implementation traceability through Phase 06
+## Implementation traceability through Phase 07
 
 | Requirement | Implemented evidence through Phase 06 | Remaining delivery |
 | --- | --- | --- |
@@ -78,8 +77,10 @@ portfolio accounts, roles, authenticated actors, and request controls.
 | FR-IMP-003 | Case-insensitive in-file LegacyId/name and PostgreSQL name duplicates are labelled for review | Partially demonstrated: no disposition or import workflow is planned |
 | FR-SEC-001 | Public reads plus Administrator-only System writes and Analyst/Administrator WorkItem, assessment, and CSV writes are enforced server-side | Portfolio roles only; no enterprise identity lifecycle |
 | FR-API-001 | Fourteen business routes plus one supporting antiforgery-token route, OpenAPI, cookie authorization, 401/403/429, and CSRF validation are HTTP tested | Later feature APIs |
+| FR-REP-001 | Public `/Operations` shows six server-projected counts and at most five deterministically ordered overdue open items | Bounded portfolio evidence only; no general reports |
+| FR-REP-002 | Deliberately not implemented | Export/report catalogue is not planned for this portfolio |
 | FR-AUD-001 | Structured login/logout events and authenticated actors in existing WorkItem history/assessment fields provide bounded evidence | Partial: System audit and tamper-resistant centralized logs are absent |
-| FR-OPS-001 | Phase 01 liveness endpoint remains implemented | Readiness dependencies and operational monitoring in Phase 7 |
+| FR-OPS-001 | Database-independent `/health`, PostgreSQL `/health/ready`, correlation scope/header, and one safe completion event are HTTP tested | No external monitoring, metrics, or tracing backend |
 
 Phase 06 satisfies the portfolio role matrix only when externally configured.
 With login disabled it intentionally remains public read-only. Actual import,
@@ -99,9 +100,9 @@ persistent identity, full business audit, and production security remain absent.
 - **NFR-ACC-001 — Accessibility:** User interfaces shall target WCAG 2.2 AA,
   including semantic structure, keyboard access, visible focus, sufficient
   contrast, and understandable validation feedback.
-- **NFR-PRF-001 — Performance:** List and reporting endpoints shall use bounded
-  queries and server-side pagination; measurable response-time targets shall be
-  defined with representative data before release.
+- **NFR-PRF-001 — Performance:** Lists and the operational overview shall use
+  bounded server-side queries. Pagination and timing targets require a larger,
+  representative workload and are outside this small fictional demo.
 - **NFR-TST-001 — Testability:** Business rules shall be isolated from framework
   code and covered by unit, integration, architecture, and documented manual
   tests appropriate to their risk.
