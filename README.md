@@ -6,7 +6,7 @@ technology team. The eventual product will bring application cataloguing,
 support work, change assessment, legacy preview boundaries, and operational
 reporting into one maintainable system.
 
-## Status: Phase 07 — Lean operational readiness
+## Status: Phase 08A — Lean container and CI foundation
 
 Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
 Application workflows over PostgreSQL. The UI includes bounded filters,
@@ -15,6 +15,9 @@ history. Phase 06 keeps every read journey public while requiring configured
 Analyst or Administrator cookie authentication for mutations. Phase 07 adds a
 public bounded Operations overview, PostgreSQL readiness, and correlation-aware
 request completion logs without turning the demo into a reporting platform.
+Phase 08A adds a non-root .NET runtime container, read-only GitHub Actions
+validation, and a Render/Neon deployment handoff; provider setup and the public
+URL remain Phase 08B work.
 
 AppSupportHub is an independent portfolio project. It is **not affiliated with,
 endorsed by, or built for the City of Winnipeg**. It does not use City data or
@@ -30,9 +33,10 @@ connect to City systems.
 - xUnit
 - ASP.NET Core cookie authentication, authorization, antiforgery, and rate limiting
 - Built-in .NET analyzers, OpenAPI, health checks, and structured logging
+- Multi-stage Docker build and GitHub Actions validation
 
 Persistent enterprise identity, real legacy import, general reporting/export,
-deployment automation, and a frontend build pipeline remain outside Phase 07.
+provider deployment, and a frontend build pipeline remain outside Phase 08A.
 
 ## Solution structure
 
@@ -137,19 +141,20 @@ through standard ASP.NET Core launch configuration.
 - [Manual test script](docs/manual-test-script.md)
 - [AI-assisted development](docs/ai-assisted-development.md)
 - [Operations runbook](docs/operations-runbook.md)
+- [Deployment handoff](docs/deployment.md)
 
 Useful diagnostics are public `/health` liveness, PostgreSQL-aware
 `/health/ready`, and the read-only `/Operations` page. A valid GUID supplied as
 `X-Correlation-ID` is normalized and returned; otherwise the host creates one.
-Phase 08 will choose hosting and create the public deployment URL.
+Phase 08B will create the Render/Neon resources and public deployment URL.
 
 ## Current limitations
 
 Phase 06 uses optional configuration-backed portfolio accounts, not a persistent
 enterprise identity provider. The project has no actual legacy import,
 tamper-resistant centralized audit, general reporting/export, persistent lockout, rate
-limiting across multiple instances, production security hardening, Dockerfile or Compose configuration, CI/CD,
-deployment automation, external monitoring, or production operations configuration. The CSV
+limiting across multiple instances, production security hardening, Compose configuration,
+automated deployment, external monitoring, or production operations configuration. The CSV
 boundary only previews validation and duplicates. The basic accessibility
 checks are not a WCAG certification. This is not a production-ready service.
 

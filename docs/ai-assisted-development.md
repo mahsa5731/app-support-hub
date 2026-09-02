@@ -381,3 +381,42 @@ liveness stayed 200 and readiness became a safe 503. Container, host,
 credentials, logs, SQL/EXPLAIN output, and temporary files were removed. No
 external monitoring, production identity, general reporting, deployment, or
 line-by-line human review is claimed.
+
+## Phase 08A
+
+Codex implemented only the lean container and CI foundation: one cache-aware
+multi-stage, non-root .NET 10 Dockerfile, one focused build-context exclusion
+file, one read-only GitHub Actions workflow, and the Render/Neon deployment
+handoff. AI assistance covered configuration, concise documentation, budget
+measurement, command execution, and runtime inspection; no line-by-line human
+review is claimed.
+
+The phase adds exactly four files and 88 nonblank Docker/CI lines against the
+220-line cap. Documentation net growth is 101 nonblank lines
+against the 160-line cap. No C#, tests, package graph, project reference,
+schema, migration, or snapshot changed, and the suite remains 307 tests.
+
+Final validation uses:
+
+```text
+dotnet tool restore
+dotnet restore AppSupportHub.sln
+dotnet build AppSupportHub.sln --configuration Release --no-restore
+dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet test AppSupportHub.sln --configuration Release --no-build --logger "console;verbosity=minimal"
+git diff --check
+```
+
+The `linux/amd64` image build and one isolated Production smoke passed. The
+smoke explicitly applied both migrations, kept seeding and login disabled,
+received 200 from all required public and health routes through forwarded HTTPS,
+and confirmed a non-root ASP.NET runtime with no SDK, source, tests, or secret
+files. Its containers, network, and temporary credential were removed.
+
+The final gate and a separate unchanged-model check passed without warnings,
+errors, pending model changes, formatting
+drift, or whitespace errors: 228 unit, 63 integration, and 16 architecture tests
+passed (307 total, zero skipped). Remote CI awaits a user push. Provider accounts,
+GitHub authorization, Neon provisioning/migration, explicit fictional Production
+data, Render deployment, public-URL verification, and rollback remain Phase 08B;
+no live deployment or production-readiness claim is made.
