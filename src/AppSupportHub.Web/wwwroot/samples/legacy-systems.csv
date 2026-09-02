@@ -1,0 +1,4 @@
+LegacyId,Name,Description,Type,Criticality,LifecycleStatus,BusinessOwner,TechnicalOwner,SupportTeam,VendorName
+LEG-100,Maple Demo Registry,Fictional legacy preview candidate,Custom,Medium,Active,Demo Business Practice,Demo Technical Practice,Portfolio Support Lab,
+LEG-200,Aurora Ledger Sandbox,Fictional database duplicate candidate,Custom,High,Active,Demo Business Practice,Demo Technical Practice,Portfolio Support Lab,
+LEG-300,Rejected Commercial Sample,Fictional invalid vendor example,Commercial,High,Planned,Demo Business Practice,Demo Technical Practice,Portfolio Support Lab,
