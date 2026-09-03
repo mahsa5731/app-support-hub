@@ -1,4 +1,4 @@
-# Phase 04 manual test script
+# Manual acceptance script
 
 Use only fictional records in a local Development environment. Complete the
 database migration and startup steps in [local development](local-development.md).
@@ -11,7 +11,7 @@ This script is a focused acceptance aid, not security or WCAG certification.
 3. Tab through Home, Systems, Work Items, and API document; verify visible focus
    and an obvious current-page style.
 4. Resize to a narrow viewport and confirm content and navigation remain usable.
-5. Verify the Phase 06, public-demo, and independent/non-affiliation statements.
+5. Verify the read-only public-demo and independent/non-affiliation statements.
 
 ## Systems journey
 
@@ -92,6 +92,17 @@ This script is a focused acceptance aid, not security or WCAG certification.
 3. Send no, valid, and invalid `X-Correlation-ID` values; verify generated,
    normalized, and replaced lowercase 32-character response values.
 4. Confirm normal public reads and one authenticated Phase 06 mutation still work.
+
+## Public live demo
+
+Use safe anonymous GET requests only against
+`https://app-support-hub.onrender.com/`. Allow one bounded retry for a free-tier
+cold start. Verify `/`, `/Systems`, `/WorkItems`, `/Operations`,
+`/api/v1/systems`, `/api/v1/work-items`, `/openapi/v1.json`, `/health`, and
+`/health/ready` return 200; the APIs contain
+three fictional systems and five fictional work items; readiness is healthy;
+security and correlation headers are present; and no real-person, employer,
+City, credential, exception, or connection data appears.
 
 Record browser, date, pass/fail, and any observation outside the repository.
 Do not enter a real person, organization, credential, customer, or production

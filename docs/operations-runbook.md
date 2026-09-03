@@ -20,6 +20,10 @@ not a production SLA or monitoring plan. The provider contract is in the
 
 - `GET /health` is process liveness and never contacts PostgreSQL.
 - `GET /health/ready` checks PostgreSQL and returns only `Healthy` or `Unhealthy`.
+- Live checks are
+  [`/health`](https://app-support-hub.onrender.com/health) and
+  [`/health/ready`](https://app-support-hub.onrender.com/health/ready); allow one
+  bounded retry when the Render Free service is cold.
 - `X-Correlation-ID` accepts a GUID and returns lowercase `N` form; invalid or
   absent values are replaced. Use it to connect a response to scoped logs.
 - Safe completion fields are correlation ID, method, path without query string,
@@ -46,18 +50,16 @@ Escalate repeated readiness or migration failures with UTC time, correlation ID,
 health status, deployed revision, and sanitized error category. Keep secrets,
 hostnames, SQL text, customer data, and generated dumps out of tickets.
 
-## Phase 08B handoff checklist
+## Live release and rollback
 
-- Inspect GitHub repository state and the revision selected for deployment.
-- Create the Render Web Service from the root `Dockerfile` and Neon database.
-- Store the connection string and other secrets only in provider settings.
-- Apply both migrations from a trusted local environment before Web starts.
-- Keep login and the Development-only seed disabled; use only the separately
-  approved narrow fictional Production seed.
-- Inspect optional Analyst/Administrator login configuration.
-- Inspect liveness/readiness public health URLs.
-- Inspect provider-specific rollback steps before release.
+The public demo is
+[https://app-support-hub.onrender.com/](https://app-support-hub.onrender.com/).
+Before release, confirm the selected `main` revision and green GitHub Actions CI.
+After Render deploys it, verify readiness, the bounded public routes, and the
+fictional 3-system/5-work-item counts without authenticating or mutating data.
 
-For rollback, redeploy the last known-good application revision. Database
-migrations and fictional seed records are not automatically reversed; preserve
-them unless a separately reviewed data recovery action is required.
+For an application regression, redeploy the last known-good Render revision and
+recheck `/health/ready`. Database migrations and fictional seed records are not
+automatically reversed; preserve them and escalate compatibility concerns rather
+than editing migration history or deleting records. Keep provider secrets and
+internal database details out of tickets and documentation.
