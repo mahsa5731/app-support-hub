@@ -633,7 +633,7 @@ public sealed class WebHttpTests(PostgreSqlContainerFixture database) : IAsyncLi
         Assert.Contains("<main", home, StringComparison.Ordinal);
         Assert.Contains("<footer", home, StringComparison.Ordinal);
         Assert.Contains("Skip to main content", home, StringComparison.Ordinal);
-        Assert.Contains("Phase 04", home, StringComparison.Ordinal);
+        Assert.Contains("Live portfolio demo", home, StringComparison.Ordinal);
         Assert.Contains("Public read-only portfolio demo", home, StringComparison.Ordinal);
         Assert.Contains("not affiliated", home, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, CountOccurrences(create, "<h1"));
