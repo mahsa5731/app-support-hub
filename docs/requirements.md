@@ -2,9 +2,9 @@
 
 ## Purpose and status
 
-These requirements define the intended portfolio product. Phase 06 keeps the
-catalog publicly readable and protects mutations with optional configured
-portfolio accounts, roles, authenticated actors, and request controls.
+These requirements describe the implemented portfolio product. The deployed
+demo keeps reads public, uses only fictional data, and disables interactive
+login; optional configured accounts protect mutations in local demonstrations.
 
 ## Functional requirements
 
@@ -60,31 +60,32 @@ portfolio accounts, roles, authenticated actors, and request controls.
   operations shall produce traceable audit records protected from ordinary
   application updates.
 
-## Implementation traceability through Phase 07
+## Implementation traceability
 
-| Requirement | Implemented evidence through Phase 06 | Remaining delivery |
+| Requirement | Implemented evidence | Remaining limitation |
 | --- | --- | --- |
-| FR-SYS-001 | Razor and API create, get, bounded search/filter, update, and confirmed lifecycle/retirement workflows persist through Application handlers | Authorization |
-| FR-SYS-002 | Commercial/custom pages and DTOs present ownership, support, vendor, criticality, lifecycle, retirement, and labelled UTC metadata | Authorization |
-| FR-WRK-001 | Razor and API creation represent incidents, enhancements, and change requests against a required non-retired system | Authorization |
-| FR-WRK-002 | Razor named actions and API endpoints provide assignment, unassignment, priority, and bounded filters | Authorization and authenticated identity |
-| FR-WRK-003 | Razor/API status actions delegate the exact type-aware transition matrix to Domain/Application | Authorization |
-| FR-WRK-004 | Razor/API due-date and detail workflows present overdue text and resolution data with explicit UTC handling | Authorization |
+| FR-SYS-001 | Razor and API create, get, bounded search/filter, update, and confirmed lifecycle/retirement workflows persist through authorized Application handlers | No enterprise identity lifecycle |
+| FR-SYS-002 | Commercial/custom pages and DTOs present ownership, support, vendor, criticality, lifecycle, retirement, and labelled UTC metadata | Bounded portfolio catalogue only |
+| FR-WRK-001 | Authorized Razor and API creation represent incidents, enhancements, and change requests against a required non-retired system | Portfolio workflows only |
+| FR-WRK-002 | Authorized Razor actions and API endpoints provide assignment, unassignment, priority, and bounded filters with authenticated actors | No enterprise identity lifecycle |
+| FR-WRK-003 | Authorized Razor/API status actions delegate the exact type-aware transition matrix to Domain/Application | Portfolio workflows only |
+| FR-WRK-004 | Authorized Razor/API due-date and detail workflows present overdue text and resolution data with explicit UTC handling | Portfolio workflows only |
 | FR-WRK-005 | Detail pages/API project chronological immutable history; user mutations persist the authenticated configured username | Persistent enterprise identity and centralized audit |
-| FR-CHG-001 | One persisted structured assessment per ChangeRequest, with bounded narratives, risk, plans, timestamps, idempotent save, and Razor PRG workflow | Authorization and authenticated assessor identity |
-| FR-IMP-001 | Strict UTF-8 `.csv` upload previews up to 256 KiB and 100 data rows; no upload or record is stored | Partially demonstrated: authorization is absent and actual import is intentionally not planned |
+| FR-CHG-001 | One persisted structured assessment per ChangeRequest, with authorized save, bounded narratives, risk, plans, timestamps, authenticated assessor, and Razor PRG workflow | One assessment per fictional change request |
+| FR-IMP-001 | Authorized strict UTF-8 `.csv` upload previews up to 256 KiB and 100 data rows; no upload or record is stored | Actual import is intentionally not planned |
 | FR-IMP-002 | Exact header, shape, vocabulary, field, vendor, size, encoding, and row-limit validation produces safe row/file feedback without database writes | Partially demonstrated by one bounded fictional format |
 | FR-IMP-003 | Case-insensitive in-file LegacyId/name and PostgreSQL name duplicates are labelled for review | Partially demonstrated: no disposition or import workflow is planned |
 | FR-SEC-001 | Public reads plus Administrator-only System writes and Analyst/Administrator WorkItem, assessment, and CSV writes are enforced server-side | Portfolio roles only; no enterprise identity lifecycle |
-| FR-API-001 | Fourteen business routes plus one supporting antiforgery-token route, OpenAPI, cookie authorization, 401/403/429, and CSRF validation are HTTP tested | Later feature APIs |
+| FR-API-001 | Fourteen business routes plus one supporting antiforgery-token route, OpenAPI, cookie authorization, 401/403/429, and CSRF validation are HTTP tested | API scope is intentionally limited to Systems and WorkItems |
 | FR-REP-001 | Public `/Operations` shows six server-projected counts and at most five deterministically ordered overdue open items | Bounded portfolio evidence only; no general reports |
 | FR-REP-002 | Deliberately not implemented | Export/report catalogue is not planned for this portfolio |
 | FR-AUD-001 | Structured login/logout events and authenticated actors in existing WorkItem history/assessment fields provide bounded evidence | Partial: System audit and tamper-resistant centralized logs are absent |
 | FR-OPS-001 | Database-independent `/health`, PostgreSQL `/health/ready`, correlation scope/header, and one safe completion event are HTTP tested | No external monitoring, metrics, or tracing backend |
 
-Phase 06 satisfies the portfolio role matrix only when externally configured.
-With login disabled it intentionally remains public read-only. Actual import,
-persistent identity, full business audit, and production security remain absent.
+The deployed demo intentionally disables login and remains public read-only.
+Configured portfolio accounts demonstrate the role matrix locally. Actual
+import, persistent identity, full business audit, and production security remain
+absent.
 
 ## Non-functional requirements
 
@@ -115,7 +116,7 @@ persistent identity, full business audit, and production security remain absent.
   analyzers, formatting, and deterministic compilation shall be repository
   controlled.
 - **NFR-DEP-001 — Deployment portability:** Runtime configuration shall be
-  environment based and the later application shall be deployable without
+  environment based and the application shall be deployable without
   coupling business code to a single hosting vendor.
 - **NFR-DOC-001 — Documentation:** Requirements, architecture decisions,
   operations, testing, AI assistance, and known limitations shall remain
@@ -131,14 +132,19 @@ Phase 04A advances NFR-MNT-001, NFR-PRF-001, and NFR-TST-001 through explicit
 Application-owned query ports and presentation-neutral read models, bounded
 server-side no-tracking projections, deterministic ordering, cancellation, and
 focused unit, PostgreSQL integration, and architecture coverage. A limit is not
-cursor or page-number pagination; full pagination remains later work.
+cursor or page-number pagination; full pagination is outside this portfolio.
 
 Phase 04B adds thin Web adapters, one case-insensitive Application parsing
 boundary, server validation, antiforgery and PRG, visible keyboard focus,
 semantic landmarks, non-color status text, RFC 7807 errors, HTTPS HTTP tests,
 and an opt-in fictional seed gate. These checks provide accessibility evidence,
-not WCAG certification; security and operational non-functional requirements
-remain incomplete.
+not WCAG certification. Later security and operations slices add bounded role,
+request-control, health, readiness, correlation, and troubleshooting evidence.
+
+Phase 08 packages the application as a non-root runtime container, validates it
+in GitHub Actions, and deploys the public read-only fictional demo to Render with
+Neon PostgreSQL. Migrations and Production demo seeding remain explicit
+owner-controlled operations; Web startup performs neither.
 
 Phase 05 advances NFR-MNT-001, NFR-DAT-001, and NFR-TST-001 with a Domain-owned
 assessment invariant, one-to-one PostgreSQL constraints, a bounded Application

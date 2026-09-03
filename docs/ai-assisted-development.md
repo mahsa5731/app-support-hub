@@ -464,3 +464,35 @@ secret-safe documentation, local execution, runtime checks, and budget audit;
 no line-by-line human review is claimed. No Neon/Render connection, secret,
 account action, migration, seed, deployment, public URL, or remote check is
 claimed. Those owner-controlled actions remain the mandatory manual checkpoint.
+
+## Phase 08B release and Phase 09 final audit
+
+The repository owner performed the secret-bearing Neon migration/fictional seed
+and Render deployment outside the Codex transcript. The resulting public
+read-only demo is `https://app-support-hub.onrender.com/`; the verified deployed
+baseline is `1f058a656539a4484667d6012794652602eb94e1`. No provider dashboard,
+credential, connection value, database mutation, commit, push, or deployment was
+performed by Codex.
+
+Codex audited the declared and compiled layer boundaries, Web dependencies,
+migrations, container/CI shape, tracked-secret indicators, portfolio claims, and
+stale phase language. The only material findings were presentation and
+documentation drift. Phase 09 rewrites the README, updates one landing view and
+its existing assertion, and synchronizes the nine affected documents without
+adding behavior, files, tests, packages, projects, migrations, or schema changes.
+Documentation has a net reduction of 21 nonblank lines; view growth is one
+nonblank line, and the suite remains 307 tests.
+
+One Release build passed with zero warnings/errors; the focused landing-page
+test passed, followed by 228 unit, 63 integration, and 16 architecture tests
+(307 total, zero failed or skipped) and format verification. One bounded public
+GET-only smoke passed without a cold-start retry: all nine HTTPS routes returned
+200, readiness was healthy, the APIs exposed exactly three fictional systems
+and five fictional work items, and security/correlation headers remained intact
+without secret- or exception-like response content.
+
+AI assistance covered scoped auditing, copy editing, local validation, and the
+sanitized public smoke; no line-by-line human review is claimed. The project
+remains a small read-only public portfolio demo, not a production-ready service,
+security certification, WCAG certification, enterprise identity implementation,
+or evidence of City, PowerBuilder, Classic ASP, Oracle, or PL/SQL experience.

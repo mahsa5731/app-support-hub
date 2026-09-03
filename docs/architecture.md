@@ -9,7 +9,7 @@ evolution, and deployment as one coherent application.
 
 ## Modular Monolith and Clean Architecture
 
-The system is a Modular Monolith: planned business modules remain explicit, but
+The system is a Modular Monolith: business modules remain explicit, but
 they build and deploy together. Clean Architecture dependency direction keeps
 enterprise rules and use cases inside the core while frameworks and external
 resources remain at the edges.
@@ -128,10 +128,10 @@ before SQL is issued.
 `ConnectionStrings__AppSupportHub`; business-host startup requires it, while
 the liveness endpoint itself performs no database query. Integration tests use one isolated
 `postgres:17-alpine` Testcontainer, apply migrations, arrange synthetic records,
-and truncate between tests. An optional handler-driven synthetic seed runs only
-when the environment is Development and `AppSupportHub:SeedDemoData` is true.
-It defaults off, is idempotent, never migrates or clears data, and never runs in
-other environments.
+and truncate between tests. An optional handler-driven synthetic seed runs at
+Development startup only when `AppSupportHub:SeedDemoData` is true. The same
+unchanged seeder can run in Production only through the explicit, gated one-shot
+command. It defaults off, is idempotent, and never migrates or clears data.
 
 ## Read-query boundary
 
@@ -162,8 +162,8 @@ Feature folders under `Pages/Systems` and `Pages/WorkItems` own server-rendered
 input and output. Forms use server validation, antiforgery, TempData, and
 Post/Redirect/Get; successful mutations redirect to canonical detail pages.
 UTC is explicit in rendered dates and `datetime-local` values are interpreted
-at the Web boundary as UTC. A server-owned synthetic actor is used until Phase
-06; no client contract accepts an actor value.
+at the Web boundary as UTC. Configured authenticated identities supply mutation
+actors; no client contract accepts an actor value.
 
 Minimal API feature groups under `Api/V1` expose exactly the Systems and
 WorkItems workflows beneath `/api/v1`. Web-owned DTOs serialize string labels
@@ -176,35 +176,10 @@ records this shared-handler adapter decision.
 
 ## Feature organization
 
-Features are organized by plural feature or module name rather than by
-technical dumping grounds. Planned later modules are
-ChangeAssessments, LegacyImports, Reporting, Identity, and Operations.
-
-Current and representative future organization:
-
-```text
-Application/
-  Systems/
-  WorkItems/
-  ChangeAssessments/
-  LegacyImports/
-  Reporting/
-  Identity/
-  Operations/
-
-Web/Pages/
-  Systems/
-  WorkItems/
-  ChangeAssessments/
-  LegacyImports/
-  Reporting/
-  Identity/
-  Operations/
-```
-
-Systems and WorkItems now exist in Domain and Application. The remaining module
-directories are not created until they contain behavior, so empty feature
-shells cannot misrepresent implemented scope.
+Features are organized by plural feature or module name rather than by technical
+dumping grounds. Implemented code is grouped around Systems, WorkItems, change
+assessment, legacy preview, security, and Operations. General reporting was
+removed from the portfolio scope; empty future feature shells are not created.
 
 Namespaces follow project and feature folders. Types and files use descriptive
 names, one primary top-level type per file, minimal public APIs, and conventional
@@ -247,8 +222,9 @@ indexed name-existence query per unique valid name is deliberately retained as
 a clear bounded tradeoff. Web renders results only; there is no import API,
 upload persistence, disposition workflow, or audit subsystem.
 
-Persistent identity, general reporting, external monitoring, production security
-hardening, containerization, CI/CD, and deployment remain later-phase work.
+Persistent identity, general reporting, external monitoring, and production
+security hardening remain outside this portfolio scope. Containerization, CI,
+and the public Render/Neon deployment are implemented operational boundaries.
 
 ## Phase 06 configured security adapter
 
@@ -281,3 +257,12 @@ without exceptions or connection details. Early Web middleware accepts only a
 GUID correlation header, normalizes it, scopes downstream logs, and emits one
 method/path/status/elapsed completion event without query strings or content.
 The public Razor Page is operational evidence, not a dashboard/reporting engine.
+
+## Container and deployment boundary
+
+GitHub Actions performs the repository's Release build, format, full-test, and
+Docker-build gates. A multi-stage Dockerfile publishes Web into a non-root .NET
+runtime image. Render runs that image over provider-terminated TLS and Neon
+provides PostgreSQL. Runtime configuration is external; the owner applies the
+two migrations and invokes the gated fictional Production seed explicitly.
+Normal startup never migrates or seeds.

@@ -1,165 +1,113 @@
 # AppSupportHub
 
-AppSupportHub is an independent portfolio demonstration of an internal
-application-support and change-management portal for an enterprise information
-technology team. The eventual product will bring application cataloguing,
-support work, change assessment, legacy preview boundaries, and operational
-reporting into one maintainable system.
+AppSupportHub is an independent portfolio project demonstrating a maintainable
+application-support and change-management portal. It combines server-rendered
+workflows, a versioned REST API, PostgreSQL persistence, explicit operational
+boundaries, and a small fictional dataset in one explainable modular monolith.
 
-## Status: Phase 08B prepared — Awaiting controlled live release
+## Live demo
 
-Razor Pages and the path-versioned REST API now expose the Systems and WorkItems
-Application workflows over PostgreSQL. The UI includes bounded filters,
-validated forms, lifecycle and work-item actions, UTC dates, and immutable
-history. Phase 06 keeps every read journey public while requiring configured
-Analyst or Administrator cookie authentication for mutations. Phase 07 adds a
-public bounded Operations overview, PostgreSQL readiness, and correlation-aware
-request completion logs without turning the demo into a reporting platform.
-Phase 08A adds a non-root .NET runtime container, read-only GitHub Actions
-validation, and a Render/Neon deployment handoff. Phase 08B now provides an
-explicit one-shot fictional Production seed command, but the owner-controlled
-provider release and public URL are not complete.
+[Open the live AppSupportHub demo](https://app-support-hub.onrender.com/)
 
-AppSupportHub is an independent portfolio project. It is **not affiliated with,
-endorsed by, or built for the City of Winnipeg**. It does not use City data or
-connect to City systems.
+[![CI](https://github.com/mahsa5731/app-support-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/mahsa5731/app-support-hub/actions/workflows/ci.yml)
 
-## Technology
+The public deployment is intentionally read-only: interactive login is disabled
+and all displayed application and work-item records are fictional. Render's free
+tier may need a short cold start after inactivity.
 
-- .NET 10 and C# 14
-- ASP.NET Core Razor Pages
-- PostgreSQL 17, EF Core 10, and Npgsql
-- CsvHelper 33.1.0 for the Infrastructure CSV adapter
-- Testcontainers for isolated PostgreSQL integration tests
-- xUnit
-- ASP.NET Core cookie authentication, authorization, antiforgery, and rate limiting
-- Built-in .NET analyzers, OpenAPI, health checks, and structured logging
-- Multi-stage Docker build and GitHub Actions validation
+## Key capabilities
 
-Persistent enterprise identity, real legacy import, general reporting/export,
-provider deployment, and a frontend build pipeline remain outside the local
-Phase 08B checkpoint.
+- Application-system inventory with ownership, criticality, vendor, lifecycle,
+  retirement, bounded search, and filtering.
+- Incident, enhancement, and change-request workflows with assignment, priority,
+  due dates, validated transitions, resolution, and immutable history.
+- Structured change assessment with risk, impact, acceptance, test, and rollback
+  planning.
+- Strict, preview-only legacy CSV validation and duplicate detection with no
+  import or upload persistence.
+- A bounded Operations overview with system, work-item, risk, and overdue signals.
+- Path-versioned REST API v1 and OpenAPI JSON using the same Application handlers
+  as Razor Pages.
+- Optional local configured-account security with role policies, antiforgery,
+  rate limiting, secure headers, and authenticated mutation actors.
+- Separate liveness and PostgreSQL readiness checks, correlation IDs, and
+  secret-safe request-completion logging.
 
-## Solution structure
+## Architecture
+
+The production dependency direction is Domain ← Application ← Infrastructure,
+with Web composing Application and Infrastructure without directly referencing
+Domain. Architecture tests enforce both compiled and declared dependencies.
 
 ```text
 src/
-  AppSupportHub.Domain/          Systems, WorkItems, and assessment rules
-  AppSupportHub.Application/     Explicit workflows, input parsing, and ports
-  AppSupportHub.Infrastructure/  EF Core PostgreSQL mappings and repositories
+  AppSupportHub.Domain/          Business entities, value objects, and rules
+  AppSupportHub.Application/     Use cases, validation, read models, and ports
+  AppSupportHub.Infrastructure/  EF Core, PostgreSQL, queries, and CSV adapter
   AppSupportHub.Web/             Razor Pages, Minimal API v1, and composition
 tests/
-  AppSupportHub.UnitTests/        Domain and Application tests and doubles
-  AppSupportHub.IntegrationTests/ Real PostgreSQL persistence and HTTP tests
-  AppSupportHub.ArchitectureTests/ Enforced dependency boundaries
+  AppSupportHub.UnitTests/        Domain and Application tests
+  AppSupportHub.IntegrationTests/ PostgreSQL persistence and HTTP tests
+  AppSupportHub.ArchitectureTests/ Dependency-boundary enforcement
 ```
 
-The production dependency direction is Domain ← Application ← Infrastructure,
-with Web depending on Application and Infrastructure but not directly on
-Domain. See [Architecture](docs/architecture.md) for the exact graph.
+See the [architecture guide](docs/architecture.md) and
+[architecture decisions](docs/adr/) for details.
+
+## Technology
+
+- .NET 10, C# 14, ASP.NET Core Razor Pages, and Minimal APIs
+- PostgreSQL 17, EF Core 10, and Npgsql
+- CsvHelper for the bounded legacy-preview adapter
+- xUnit and Testcontainers
+- OpenAPI, built-in health checks, analyzers, and structured logging
+- Multi-stage Docker image, GitHub Actions CI, Render, and Neon
 
 ## Local development
 
-Prerequisites:
-
-- Stable .NET SDK `10.0.400` or a compatible .NET 10 feature-band update
-- Git
-- Docker with a reachable Linux engine for PostgreSQL integration tests
-
-Set the required connection string without storing a password in the repository,
-apply the existing migration explicitly, and run from the repository root:
+Configure and migrate a local PostgreSQL database as described in the
+[local-development guide](docs/local-development.md), then run:
 
 ```bash
 dotnet tool restore
 dotnet restore AppSupportHub.sln
-export ConnectionStrings__AppSupportHub='Host=localhost;Port=5432;Database=app_support_hub;Username=app_support_hub;Password=replace-locally'
-dotnet ef database update --project src/AppSupportHub.Infrastructure --startup-project src/AppSupportHub.Infrastructure
-dotnet build AppSupportHub.sln --no-restore
-dotnet test AppSupportHub.sln --no-build
-dotnet format AppSupportHub.sln --verify-no-changes --no-restore
+dotnet build AppSupportHub.sln --configuration Release --no-restore
+dotnet test AppSupportHub.sln --configuration Release --no-build
 dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj
 ```
 
-Integration tests start one isolated `postgres:17-alpine` container and apply
-the repository migration. The runtime key is
-`ConnectionStrings:AppSupportHub`, with `ConnectionStrings__AppSupportHub` as
-its environment override. It is required for the business host; startup never
-applies migrations or creates a database. No real connection string or password
-belongs in source control.
+Runtime startup never creates or migrates a database. Optional fictional local
+data and configured mutation accounts are disabled by default.
 
-Optional fictional demo records require both Development and an explicit gate:
+## Testing and quality
 
-```bash
-export ASPNETCORE_ENVIRONMENT=Development
-export AppSupportHub__SeedDemoData=true
-dotnet run --project src/AppSupportHub.Web/AppSupportHub.Web.csproj
-```
+The verified suite contains 307 tests: 228 unit, 63 PostgreSQL/HTTP integration,
+and 16 architecture tests. CI restores tools and packages, performs a warning-free
+Release build, verifies formatting, runs the full suite, and builds the Docker
+image. These checks are portfolio evidence, not production certification or a
+WCAG conformance claim.
 
-The gate defaults to false, never runs outside Development, and never migrates
-or clears data. See [local development](docs/local-development.md) for complete
-macOS/Linux setup and shutdown guidance.
+## Deployment and operations
 
-The local host exposes:
+The live demo runs as a non-root .NET runtime container on Render backed by Neon
+PostgreSQL. Database migrations and the idempotent fictional Production seed are
+explicit owner-controlled operations; normal Web startup performs neither.
 
-- `/` — the project-status page
-- `/Systems` and `/WorkItems` — server-rendered workflows
-- `/WorkItems/{workItemId}/Assessment` — ChangeRequest assessment form
-- `/LegacyImports` — preview-only legacy CSV upload
-- `/api/v1/systems` and `/api/v1/work-items` — REST API v1
-- `/openapi/v1.json` — OpenAPI document
-- `/Account/Login` — optional configured-account login
-- `/api/v1/security/antiforgery` — authenticated unsafe-API token support
-- `/health` — the built-in liveness health response
+See the [deployment guide](docs/deployment.md) for the sanitized release contract
+and the [operations runbook](docs/operations-runbook.md) for health, diagnostics,
+redeploy, and rollback guidance.
 
-CSV previews accept strict UTF-8 `.csv` files no larger than 256 KiB and 100
-data rows, with the exact header shown in the downloadable fictional sample.
-Previewing never stores the upload or changes application-system records.
+## Limitations and independence
 
-Interactive access is disabled by default. To enable it, externally configure
-`AppSupportHub__Security__EnableInteractiveLogin=true` plus `Username` and
-`Password` values beneath both `Analyst` and `Administrator`; passwords must be
-at least 12 characters and never belong in tracked files. Administrators manage
-Systems; both roles manage WorkItems, assessments, and CSV previews. The public
-live URL is a Phase 08 deliverable, not part of this phase.
+The demo uses configuration-backed local portfolio accounts rather than an
+enterprise identity provider. It has no actual legacy import, general
+reporting/export, centralized tamper-resistant audit, external monitoring,
+persistent lockout, multi-instance rate limiting, production security hardening,
+or production support commitment. The free hosting tier can introduce cold-start
+latency. It is not production-ready.
 
-The HTTPS launch profile listens on `https://localhost:7130` and redirects the
-corresponding local HTTP endpoint to HTTPS. Local port settings can be changed
-through standard ASP.NET Core launch configuration.
-
-## Project documentation
-
-- [Requirements](docs/requirements.md)
-- [Job alignment](docs/job-alignment.md)
-- [Architecture](docs/architecture.md)
-- [Phase plan](docs/phase-plan.md)
-- [ADR 0001: Modular Monolith and Clean Architecture](docs/adr/0001-modular-monolith-and-clean-architecture.md)
-- [ADR 0002: Server-rendered Razor Pages UI](docs/adr/0002-server-rendered-razor-pages-ui.md)
-- [ADR 0003: Rich domain model and explicit use cases](docs/adr/0003-rich-domain-model-and-explicit-use-cases.md)
-- [ADR 0004: PostgreSQL and EF Core persistence](docs/adr/0004-postgresql-ef-core-persistence.md)
-- [ADR 0005: Explicit read models and query ports](docs/adr/0005-explicit-read-models-and-query-ports.md)
-- [ADR 0006: Thin Razor Pages and versioned Minimal API](docs/adr/0006-thin-razor-pages-and-versioned-minimal-api.md)
-- [REST API v1](docs/api-v1.md)
-- [Local development](docs/local-development.md)
-- [Manual test script](docs/manual-test-script.md)
-- [AI-assisted development](docs/ai-assisted-development.md)
-- [Operations runbook](docs/operations-runbook.md)
-- [Deployment handoff](docs/deployment.md)
-
-Useful diagnostics are public `/health` liveness, PostgreSQL-aware
-`/health/ready`, and the read-only `/Operations` page. A valid GUID supplied as
-`X-Correlation-ID` is normalized and returned; otherwise the host creates one.
-Phase 08B will create the Render/Neon resources and public deployment URL.
-
-## Current limitations
-
-Phase 06 uses optional configuration-backed portfolio accounts, not a persistent
-enterprise identity provider. The project has no actual legacy import,
-tamper-resistant centralized audit, general reporting/export, persistent lockout, rate
-limiting across multiple instances, production security hardening, Compose configuration,
-automated deployment, external monitoring, or production operations configuration. The CSV
-boundary only previews validation and duplicates. The basic accessibility
-checks are not a WCAG certification. This is not a production-ready service.
-
-## License
+AppSupportHub is not affiliated with, endorsed by, or built for the City of
+Winnipeg. It contains no City, employer, customer, or real-person data and does
+not claim PowerBuilder, Classic ASP, Oracle, or PL/SQL implementation experience.
 
 AppSupportHub is available under the [MIT License](LICENSE).

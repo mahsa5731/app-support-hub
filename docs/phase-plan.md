@@ -82,15 +82,14 @@ General reporting/export, configurable dashboards, and list pagination are
 intentionally removed from this portfolio scope; existing bounds suit the
 fictional dataset.
 
-## 8. CI/CD, Docker, deployment, and final documentation — In progress
+## 8. CI/CD, Docker, deployment, and final documentation — Completed
 
 - **Phase 08A — Completed:** A cache-aware multi-stage, non-root .NET 10
   container; read-only GitHub Actions validation; local container smoke evidence;
   and the Render/Neon environment, migration, health, and secret handoff.
-- **Phase 08B — Prepared, external release pending:** The narrow explicit,
-  idempotent fictional Production seed command is ready for local validation.
-  Owner-controlled Neon migration/seed, Render deployment, public read-only URL,
-  release/rollback evidence, and final documentation remain pending.
+- **Phase 08B — Completed:** The owner applied both Neon migrations and the
+  explicit idempotent fictional Production seed, then deployed the public
+  read-only Render service and verified its bounded routes and health.
 - **Required tests:** Clean CI build, container health, migration/deployment,
   rollback, environment, and deployed smoke tests.
 - **Dependency:** Phases 1–7.
@@ -101,9 +100,9 @@ Phases 06–08 each deliver only one demonstrable vertical slice, reuse the
 current code, and normally add no more than eight tests. They do not aim for
 production completeness unless the user explicitly changes this scope.
 
-## 9. Ultra-mode independent final audit — Planned
+## 9. Lean final audit and portfolio polish — Completed
 
-- **Objective:** Perform an independent, adversarial review of the complete
+- **Objective:** Perform an evidence-based review of the complete
   repository against requirements, architecture, security, quality, and honest
   portfolio claims.
 - **Main deliverables:** Evidence-backed findings, prioritized remediation,
